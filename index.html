@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>wrong.id.lv</title>
+<meta name="description" content="wrong">
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    height: 100%;
+    background: #050506;
+    color: #c8c8ce;
+    font-family: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+    overflow: hidden;
+  }
+  body {
+    display: grid;
+    place-items: center;
+    min-height: 100dvh;
+    padding: 24px;
+    background:
+      radial-gradient(900px 500px at 50% -10%, rgba(200,16,46,.12), transparent 60%),
+      #050506;
+  }
+  .stage {
+    position: relative;
+    width: min(920px, 100%);
+    text-align: center;
+  }
+  .scan {
+    pointer-events: none;
+    position: fixed; inset: 0;
+    background: repeating-linear-gradient(
+      to bottom,
+      transparent 0 2px,
+      rgba(0,0,0,.18) 2px 3px
+    );
+    opacity: .35;
+    z-index: 2;
+  }
+  .vignette {
+    pointer-events: none;
+    position: fixed; inset: 0;
+    background: radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,.55) 100%);
+    z-index: 1;
+  }
+  pre.art {
+    position: relative;
+    z-index: 3;
+    display: inline-block;
+    margin: 0 auto;
+    font-size: clamp(7px, 1.65vw, 15px);
+    line-height: 1.05;
+    letter-spacing: .02em;
+    white-space: pre;
+    text-align: left;
+    color: #f2f2f5;
+    text-shadow:
+      0 0 12px rgba(255,255,255,.12),
+      0 0 40px rgba(200,16,46,.18);
+    user-select: none;
+  }
+  pre.art .g {
+    color: rgba(200,16,46,.95);
+    text-shadow: 0 0 14px rgba(200,16,46,.55);
+  }
+  pre.art .dim {
+    color: rgba(255,255,255,.22);
+  }
+  .meta {
+    position: relative;
+    z-index: 3;
+    margin-top: 28px;
+    font-size: 12px;
+    letter-spacing: .22em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,.35);
+  }
+  .meta b {
+    color: rgba(255,255,255,.7);
+    font-weight: 500;
+  }
+  .cursor {
+    display: inline-block;
+    width: .55em;
+    height: 1em;
+    margin-left: 2px;
+    background: #c8102e;
+    vertical-align: -2px;
+    box-shadow: 0 0 10px rgba(200,16,46,.7);
+    animation: blink 1s steps(1) infinite;
+  }
+  @keyframes blink {
+    50% { opacity: 0; }
+  }
+  .glitch {
+    animation: glitch 4.5s infinite linear;
+  }
+  @keyframes glitch {
+    0%, 92%, 100% { transform: none; filter: none; }
+    93% { transform: translate(1px, -1px); filter: hue-rotate(20deg); }
+    94% { transform: translate(-2px, 1px); }
+    95% { transform: translate(2px, 0); }
+    96% { transform: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .glitch, .cursor { animation: none; }
+  }
+</style>
+</head>
+<body>
+  <div class="scan" aria-hidden="true"></div>
+  <div class="vignette" aria-hidden="true"></div>
+  <div class="stage">
+    <pre class="art glitch" id="art" aria-label="wrong"></pre>
+    <div class="meta"><b>wrong</b>.id.lv<span class="cursor" aria-hidden="true"></span></div>
+  </div>
+<script>
+/* BIG "WRONG" — block ASCII, animated with noise / red glitch cells */
+const GLYPHS = {
+W: [
+"██     ██",
+"██  █  ██",
+"██ ███ ██",
+"███   ███",
+"██     ██",
+],
+R: [
+"███████╗ ",
+"██╔══██║ ",
+"██████╔╝ ",
+"██╔══██╗ ",
+"██║  ██║ ",
+],
+O: [
+" ██████╗ ",
+"██╔═══██╗",
+"██║   ██║",
+"██║   ██║",
+"╚██████╔╝",
+],
+N: [
+"███╗   ██╗",
+"████╗  ██║",
+"██╔██╗ ██║",
+"██║╚██╗██║",
+"██║ ╚████║",
+],
+G: [
+" ██████╗ ",
+"██╔════╝ ",
+"██║  ███╗",
+"██║   ██║",
+"╚██████╔╝",
+],
+};
+
+/* cleaner solid blocks (no box-drawing mix) */
+const SOLID = {
+W: [
+"██      ██",
+"██  ██  ██",
+"██ ████ ██",
+"████  ████",
+"██      ██",
+],
+R: [
+"████████ ",
+"██     ██",
+"████████ ",
+"██   ██  ",
+"██    ██ ",
+],
+O: [
+"  ██████  ",
+" ██    ██ ",
+"██      ██",
+" ██    ██ ",
+"  ██████  ",
+],
+N: [
+"███    ██",
+"████   ██",
+"██ ██  ██",
+"██  ██ ██",
+"██   ████",
+],
+G: [
+"  ██████  ",
+" ██       ",
+"██   █████",
+" ██     ██",
+"  ██████  ",
+],
+};
+
+const WORD = ["W","R","O","N","G"];
+const H = 5;
+const GAP = "  ";
+
+function buildFrame(t, mode) {
+  /* mode: 0 stable, 1 partial, 2 glitch fill */
+  const rows = Array.from({ length: H }, () => "");
+  for (let li = 0; li < WORD.length; li++) {
+    const ch = WORD[li];
+    const g = SOLID[ch];
+    for (let r = 0; r < H; r++) {
+      let line = g[r];
+      if (mode === 1) {
+        /* type-on by letter */
+        if (li > Math.floor(t)) line = line.replace(/█/g, "·");
+        else if (li === Math.floor(t)) {
+          const frac = t - Math.floor(t);
+          const cut = Math.floor(line.length * frac);
+          line = line.slice(0, cut).replace(/ /g, " ") + line.slice(cut).replace(/█/g, "·");
+        }
+      } else if (mode === 2) {
+        /* random dropouts / red hotspots */
+        let out = "";
+        for (let i = 0; i < line.length; i++) {
+          const c = line[i];
+          if (c === "█") {
+            const n = Math.sin(t * 7 + li * 3 + r * 5 + i * 1.7);
+            if (n > 0.82) out += "▓";
+            else if (n < -0.88) out += " ";
+            else out += "█";
+          } else out += c;
+        }
+        line = out;
+      }
+      rows[r] += line + (li < WORD.length - 1 ? GAP : "");
+    }
+  }
+  return rows;
+}
+
+function toHtml(rows, t) {
+  /* paint some cells red when glitching */
+  return rows.map((row, r) => {
+    let html = "";
+    for (let i = 0; i < row.length; i++) {
+      const c = row[i];
+      if (c === " " || c === "·") {
+        html += c === "·" ? `<span class="dim">·</span>` : " ";
+      } else if (c === "▓") {
+        html += `<span class="g">█</span>`;
+      } else {
+        /* occasional red flicker */
+        const hot = Math.sin(t * 11 + r * 2 + i) > 0.93;
+        html += hot ? `<span class="g">${c}</span>` : c;
+      }
+    }
+    return html;
+  }).join("\n");
+}
+
+const el = document.getElementById("art");
+const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+let t0 = performance.now();
+
+function frame(now) {
+  const sec = (now - t0) / 1000;
+  let rows;
+  if (reduced) {
+    rows = buildFrame(0, 0);
+    el.innerHTML = toHtml(rows, 0);
+    return;
+  }
+  /* 0–1.6s type letters, then loop glitch */
+  if (sec < 1.8) {
+    const typeT = (sec / 1.8) * WORD.length;
+    rows = buildFrame(typeT, 1);
+  } else {
+    const g = (sec - 1.8);
+    /* mostly stable, brief noise pulses */
+    const pulse = (Math.sin(g * 0.7) * 0.5 + 0.5);
+    if (pulse > 0.88 || (g % 5.5) > 5.15) {
+      rows = buildFrame(g * 3, 2);
+    } else {
+      rows = buildFrame(g, 0);
+    }
+  }
+  el.innerHTML = toHtml(rows, sec * 2);
+  requestAnimationFrame(frame);
+}
+
+if (reduced) {
+  el.textContent = buildFrame(0, 0).join("\n");
+} else {
+  requestAnimationFrame(frame);
+}
+</script>
+</body>
+</html>

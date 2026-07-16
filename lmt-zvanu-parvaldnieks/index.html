@@ -1,0 +1,2765 @@
+<!DOCTYPE html>
+<html lang="lv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LMT Zvanu pārvaldnieks — Svarīgais no sarunām vairs nepazūd</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+    :root{
+    --bg:#070708;
+    --bg-elev:#0C0C0E;
+    --card:#101012;
+    --card-2:#141417;
+    --line:rgba(255,255,255,.06);
+    --line-2:rgba(255,255,255,.11);
+    --line-3:rgba(255,255,255,.18);
+    --txt:#F4F4F5;
+    --dim:#8B8B93;
+    --dim-2:#5C5C66;
+    --mid:#B4B4BC;
+    --red:#C8102E;
+    --red-soft:#E23A52;
+    --red-glow:rgba(200,16,46,.45);
+    --green:#3DD68C;
+    --r-sm:12px;
+    --r-md:18px;
+    --r-lg:24px;
+    --ease:cubic-bezier(.22,1,.36,1);
+    --ease-out:cubic-bezier(.16,1,.3,1);
+    --nav-h:88px;
+    --pad-x:clamp(20px,6vw,108px);
+    --max:1180px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Arial,sans-serif;
+    background:var(--bg);color:var(--txt);
+    -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
+    font-weight:400;overflow-x:hidden;
+    font-feature-settings:"ss01","cv11";
+    letter-spacing:-.005em;
+  }
+  ::selection{background:rgba(200,16,46,.45);color:#fff}
+  .mono{font-family:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;letter-spacing:0}
+
+  body::before{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+    background:
+      radial-gradient(900px 520px at 50% -8%, rgba(200,16,46,.11), transparent 62%),
+      radial-gradient(700px 400px at 100% 30%, rgba(200,16,46,.04), transparent 55%),
+      radial-gradient(600px 360px at 0% 70%, rgba(255,255,255,.02), transparent 50%);
+  }
+  body::after{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:9998;opacity:.035;
+    background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    mix-blend-mode:overlay;
+  }
+  nav,.scroll-progress,section,.hero,.demo-wrap,footer,.hr{position:relative;z-index:1}
+
+  nav{
+    position:fixed;top:0;left:0;right:0;z-index:100;
+    display:flex;align-items:center;gap:28px;
+    padding:0 var(--pad-x);height:var(--nav-h);
+    background:rgba(7,7,8,.55);backdrop-filter:blur(20px) saturate(1.4);
+    -webkit-backdrop-filter:blur(20px) saturate(1.4);
+    border-bottom:1px solid transparent;
+    transition:border-color .4s var(--ease), background .4s var(--ease), height .3s var(--ease);
+  }
+  nav.scrolled{
+    border-bottom-color:var(--line);
+    background:rgba(7,7,8,.78);
+    height:76px;
+  }
+  .logo{
+    display:flex;align-items:center;gap:12px;
+    font-size:14px;color:var(--txt);text-decoration:none;letter-spacing:-.01em;
+    flex:none;
+  }
+  .logo-img{
+    height:64px;width:auto;display:block;
+    flex:none;
+  }
+  .logo-sep{
+    width:1px;height:18px;flex:none;
+    background:rgba(255,255,255,.85);
+  }
+  .logo-product{
+    color:#fff;font-weight:400;font-size:14.5px;
+    letter-spacing:-.01em;white-space:nowrap;flex:none;
+  }
+  /* Fixed nav offset for in-page anchors (Demo, sections) */
+  #demo,
+  #dzirdi,
+  #plusma,
+  #piemeri,
+  #cenas,
+  #sakt,
+  #vadiba,
+  #faq,
+  #cta,
+  #ieguvumi{
+    scroll-margin-top: calc(var(--nav-h) + 16px);
+  }
+  .nav-links{display:flex;gap:4px;font-size:13px;margin-right:auto}
+  .nav-links a{
+    color:var(--dim);text-decoration:none;
+    padding:8px 12px;border-radius:999px;
+    transition:color .2s, background .2s;
+  }
+  .nav-links a:hover{color:var(--txt);background:rgba(255,255,255,.04)}
+  .nav-cta{margin-left:auto}
+  /* hamburger — desktop hidden */
+  .nav-toggle{
+    display:none;
+    width:44px;height:44px;margin-left:8px;flex:none;
+    border:1px solid var(--line-2);border-radius:12px;
+    background:rgba(255,255,255,.03);color:var(--txt);
+    cursor:pointer;padding:0;position:relative;z-index:120;
+    align-items:center;justify-content:center;
+  }
+  .nav-toggle span,
+  .nav-toggle span::before,
+  .nav-toggle span::after{
+    display:block;width:18px;height:1.5px;background:currentColor;
+    border-radius:1px;transition:transform .3s var(--ease), opacity .2s;
+    position:relative;
+  }
+  .nav-toggle span::before,
+  .nav-toggle span::after{
+    content:"";position:absolute;left:0;
+  }
+  .nav-toggle span::before{top:-6px}
+  .nav-toggle span::after{top:6px}
+  .nav-toggle[aria-expanded="true"] span{background:transparent}
+  .nav-toggle[aria-expanded="true"] span::before{top:0;transform:rotate(45deg)}
+  .nav-toggle[aria-expanded="true"] span::after{top:0;transform:rotate(-45deg)}
+  .nav-drawer{
+    display:none;
+  }
+  .nav-backdrop{
+    display:none;
+  }
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:9px;
+    height:44px;padding:0 22px;border-radius:999px;
+    font-family:inherit;font-size:13.5px;font-weight:500;letter-spacing:-.01em;
+    text-decoration:none;cursor:pointer;border:none;
+    transition:transform .25s var(--ease), box-shadow .3s var(--ease), opacity .2s, border-color .2s, background .2s;
+    position:relative;
+  }
+  .btn-white{
+    background:#fff;color:#0a0a0a;
+    box-shadow:0 1px 0 rgba(255,255,255,.4) inset, 0 8px 28px rgba(0,0,0,.25);
+  }
+  .btn-white:hover{
+    opacity:1;transform:translateY(-1.5px);
+    box-shadow:0 1px 0 rgba(255,255,255,.5) inset, 0 14px 40px rgba(255,255,255,.12);
+  }
+  .btn-line{
+    background:rgba(255,255,255,.03);color:var(--txt);
+    border:1px solid var(--line-2);overflow:hidden;
+  }
+  .btn-line::before{
+    content:"";position:absolute;inset:0;background:rgba(255,255,255,.06);
+    transform:scaleX(0);transform-origin:left;transition:transform .35s var(--ease);
+  }
+  .btn-line:hover{border-color:var(--line-3)}
+  .btn-line:hover::before{transform:scaleX(1)}
+  .btn:active{transform:scale(.97)}
+  nav .btn{height:36px;padding:0 16px;font-size:13px}
+
+  .scroll-progress{
+    position:fixed;top:0;left:0;height:1.5px;width:0%;z-index:200;
+    background:linear-gradient(90deg, #8F0B21, var(--red), #ff5a6e);
+    box-shadow:0 0 12px var(--red-glow);
+    transition:width .08s linear;
+  }
+
+  .hero{
+    min-height:auto;
+    display:flex;flex-direction:column;align-items:center;justify-content:flex-start;
+    text-align:center;padding:calc(var(--nav-h) + 56px) 24px 0;
+    position:relative;
+  }
+  .hero-stage{
+    width:100%;max-width:920px;margin:0 auto;
+    display:flex;flex-direction:column;align-items:center;
+    padding-bottom:28px;
+  }
+  .hero h1{margin-top:0}
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:10px;
+    font-size:13px;color:var(--mid);margin-bottom:28px;
+    padding:6px 12px 6px 10px;
+    border:1px solid var(--line-2);border-radius:999px;
+    background:rgba(255,255,255,.02);
+    backdrop-filter:blur(8px);
+  }
+  .eyebrow .wave-ico{display:inline-flex;gap:2px;align-items:center;height:14px}
+  .eyebrow .wave-ico i{width:2px;background:var(--mid);border-radius:1px}
+  .eyebrow .wave-ico i:nth-child(1){height:6px}.eyebrow .wave-ico i:nth-child(2){height:13px}
+  .eyebrow .wave-ico i:nth-child(3){height:9px}.eyebrow .wave-ico i:nth-child(4){height:13px}
+  .eyebrow .wave-ico i:nth-child(5){height:5px}
+  .eyebrow .wave-ico i{animation:waveBar 1.9s ease-in-out infinite;transform-origin:center}
+  .eyebrow .wave-ico i:nth-child(1){animation-delay:0s}
+  .eyebrow .wave-ico i:nth-child(2){animation-delay:.18s}
+  .eyebrow .wave-ico i:nth-child(3){animation-delay:.36s}
+  .eyebrow .wave-ico i:nth-child(4){animation-delay:.54s}
+  .eyebrow .wave-ico i:nth-child(5){animation-delay:.72s}
+  @keyframes waveBar{0%,100%{transform:scaleY(1);opacity:.8}50%{transform:scaleY(1.65);opacity:1}}
+
+  .badge{
+    font-size:10.5px;font-weight:500;letter-spacing:.04em;color:var(--red-soft);
+    border-radius:999px;padding:3px 9px;position:relative;overflow:hidden;
+    border:none;z-index:0;background:transparent;
+  }
+  .badge::before{
+    content:"";position:absolute;z-index:-2;left:50%;top:50%;width:300%;aspect-ratio:1;
+    transform:translate(-50%,-50%) rotate(0turn);
+    background:conic-gradient(rgba(200,16,46,.2) 0 62%, #C8102E 76%, rgba(200,16,46,.2) 90%);
+    animation:badgeSpin 3.2s linear infinite;
+  }
+  .badge::after{content:"";position:absolute;z-index:-1;inset:1px;border-radius:999px;background:#161012}
+  @keyframes badgeSpin{to{transform:translate(-50%,-50%) rotate(1turn)}}
+
+  h1{
+    font-size:clamp(38px,5.6vw,68px);
+    font-weight:300;letter-spacing:-.038em;line-height:1.02;
+    max-width:920px;text-wrap:balance;
+  }
+  h1 .dim{
+    color:transparent;
+    background:linear-gradient(180deg, rgba(255,255,255,.42), rgba(255,255,255,.18));
+    -webkit-background-clip:text;background-clip:text;
+  }
+  .hero-sub{
+    font-size:clamp(15px,1.3vw,17px);line-height:1.65;color:var(--dim);
+    max-width:520px;margin:22px auto 28px;font-weight:400;text-wrap:pretty;
+  }
+  .hero-ctas{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-bottom:28px}
+  .meta-row{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;font-size:12.5px;color:var(--dim-2)}
+  .meta-row span{
+    display:inline-flex;align-items:center;gap:7px;
+    padding:7px 12px;border-radius:999px;
+    border:1px solid var(--line);background:rgba(255,255,255,.015);
+  }
+  .meta-row svg{opacity:.55;flex:none}
+
+  /* ---------- CALL PLAYER · Mediator art + restrained deck ---------- */
+  .winamp{
+    --mediator-mask:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20853%20739%22%3E%3Cpath%20fill%3D%22white%22%20d%3D%22M798.784%2088.8925C756.58%2039.4254%20694.481%2010.5025%20625.292%208.9241L204.574%200.103185C172.136%20-0.770709%20140.359%203.91454%20113.554%2013.9895C13.9937%2051.4109%20-25.4061%20154.779%2016.705%20265.256L138.682%20585.257C173.049%20675.417%20276.033%20742.688%20373.478%20738.001L609.74%20726.143C630.03%20725.775%20650.144%20721.119%20670.567%20713.442C744.599%20685.616%20800.589%20618.114%20811.818%20544.208L851.233%20272.428C858.809%20204.251%20841.473%20139.629%20798.784%2088.8925Z%22%2F%3E%3C%2Fsvg%3E");
+    width:100%;max-width:680px;
+    margin:40px auto 0;
+    position:relative;z-index:2;
+    display:flex;flex-direction:column;align-items:center;
+    padding:0 0 96px;
+    overflow:visible;
+  }
+  .winamp-art-stage{
+    width:100%;
+    perspective:1100px;
+    perspective-origin:50% 40%;
+    filter:drop-shadow(0 24px 40px rgba(0,0,0,.5));
+  }
+  .winamp-art{
+    position:relative;
+    width:100%;
+    aspect-ratio:853/739;
+    max-height:min(400px,50vw);
+    margin:0 auto;
+    transform-style:preserve-3d;
+    will-change:transform;
+    transition:transform .55s var(--ease-out);
+    -webkit-mask-image:var(--mediator-mask);
+    mask-image:var(--mediator-mask);
+    -webkit-mask-size:100% 100%;
+    mask-size:100% 100%;
+    -webkit-mask-repeat:no-repeat;
+    mask-repeat:no-repeat;
+    -webkit-mask-position:center;
+    mask-position:center;
+    -webkit-mask-mode:luminance;
+    mask-mode:luminance;
+  }
+  .winamp-art.is-tilting{transition:transform .08s linear}
+  .winamp-art img{
+    width:100%;height:100%;
+    object-fit:cover;object-position:50% 30%;
+    display:block;
+    transform:scale(1.05);
+    filter:saturate(.88) brightness(.82);
+    transition:transform .55s var(--ease-out);
+    pointer-events:none;
+  }
+  .winamp-art.is-tilting img{transition:transform .08s linear}
+  .winamp-art::before{
+    content:"";position:absolute;inset:0;pointer-events:none;z-index:1;
+    background:
+      linear-gradient(180deg, rgba(7,7,8,.15) 0%, transparent 35%, rgba(7,7,8,.55) 100%);
+  }
+  .winamp-shine{
+    position:absolute;inset:0;pointer-events:none;z-index:2;
+    background:radial-gradient(380px 240px at var(--mx,50%) var(--my,40%), rgba(255,255,255,.14), transparent 55%);
+    opacity:0;mix-blend-mode:soft-light;transition:opacity .4s;
+  }
+  .winamp-art.is-tilting .winamp-shine{opacity:1}
+  .winamp-play{
+    position:absolute;left:50%;top:48%;z-index:4;
+    transform:translate(-50%,-50%);
+    width:56px;height:56px;border-radius:50%;border:none;cursor:pointer;
+    background:#fff;color:#0a0a0a;
+    display:grid;place-items:center;
+    box-shadow:0 8px 28px rgba(0,0,0,.4);
+    transition:transform .2s var(--ease), opacity .2s;
+  }
+  .winamp-play:hover{transform:translate(-50%,-50%) scale(1.05)}
+  .winamp-play:active{transform:translate(-50%,-50%) scale(.97)}
+  .winamp-play svg{margin-left:2px}
+  .winamp-play.is-playing svg{margin-left:0}
+  .winamp-live{display:none}
+
+  /* solid deck — no glass, no red glow, contained overflow */
+  .winamp-deck{
+    width:min(100%, 560px);
+    margin-top:-36px;
+    position:relative;z-index:5;
+    border-radius:14px;
+    padding:16px 18px 14px;
+    background:#121214;
+    border:1px solid rgba(255,255,255,.08);
+    box-shadow:0 16px 40px rgba(0,0,0,.4);
+    text-align:left;
+    overflow:hidden; /* keep waveform inside */
+    min-width:0;
+  }
+  .px-top{display:flex;align-items:flex-start;gap:12px;margin-bottom:12px;position:relative}
+  .px-meta{min-width:0;flex:1}
+  .px-name{
+    font-size:14px;font-weight:500;letter-spacing:-.015em;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  .px-sub{font-size:12px;color:var(--dim-2);margin-top:2px}
+  .px-state{
+    flex:none;font-size:11px;
+    color:var(--dim-2);padding:0;
+    border:none;background:none;
+    letter-spacing:0;text-transform:none;
+    font-family:inherit;
+  }
+  .px-state.rec{color:var(--txt)}
+  .px-state.rec::before{
+    content:"";display:inline-block;width:5px;height:5px;border-radius:50%;
+    background:var(--red);margin-right:6px;vertical-align:1px;
+    animation:blinkDot 1.3s infinite;
+  }
+
+  .scrub-wrap{
+    position:relative;margin-bottom:2px;cursor:pointer;
+    overflow:hidden;width:100%;min-width:0;
+  }
+  .scrub-wave{
+    display:flex;align-items:center;gap:1px;height:36px;
+    pointer-events:none;width:100%;min-width:0;overflow:hidden;
+  }
+  .scrub-wave i{
+    flex:1 1 0;min-width:0;max-width:4px;
+    border-radius:1px;background:rgba(255,255,255,.1);
+    height:16%;max-height:100%;align-self:center;
+    transition:background .15s;
+  }
+  .scrub-wave i.past{background:rgba(255,255,255,.5)}
+  .winamp.is-playing .scrub-wave i.past{background:linear-gradient(to top, rgba(143,11,33,.9), var(--red))}
+  input[type=range].scrub{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;margin:0}
+  .scrub-needle{
+    position:absolute;top:2px;bottom:2px;width:1px;background:#fff;
+    left:0;opacity:0;transition:opacity .3s;pointer-events:none;
+  }
+  .scrub-wrap.active .scrub-needle{opacity:.7}
+  .scrub-times{
+    display:flex;justify-content:space-between;align-items:center;
+    font-size:11px;color:var(--dim-2);font-variant-numeric:tabular-nums;
+    margin-bottom:0;
+  }
+  .px-hint{display:none}
+
+  /* transcript: grows with content, no inner scroll */
+  .px-tr{
+    border-top:1px solid rgba(255,255,255,.07);
+    margin-top:12px;padding-top:10px;
+    font-size:13.5px;line-height:1.55;
+    max-height:0;overflow:hidden;opacity:0;
+    transition:max-height .5s var(--ease), opacity .3s;
+    text-align:left;
+  }
+  .winamp.has-transcript .px-tr{
+    max-height:480px;
+    opacity:1;
+    overflow:visible;
+  }
+  .px-line{
+    display:none;
+    margin:0 0 12px;
+    padding:0;
+    border:none;background:none;border-radius:0;
+  }
+  .px-line.on{display:grid;grid-template-columns:72px 1fr;gap:10px;animation:pxIn .35s var(--ease-out)}
+  @keyframes pxIn{from{opacity:0}to{opacity:1}}
+  .px-line .w{
+    font-size:12px;letter-spacing:0;text-transform:none;
+    color:var(--dim-2);margin:0;padding-top:1px;
+    font-family:inherit;font-weight:400;
+  }
+  .px-line[data-role="klients"] .w,
+  .px-line[data-role="darbinieks"] .w{color:var(--dim-2)}
+  .px-line .t{color:var(--mid);line-height:1.5}
+  .px-line .px-word{
+    opacity:0;
+    transition:opacity .07s linear;
+  }
+  .px-line .px-word.vis{opacity:1}
+  /* highlight only after the full sentence is typed */
+  .px-line.is-done .px-word.hl{
+    color:#fff;
+    font-weight:500;
+  }
+  .bubble .hl,.cv-out .hl{
+    color:#fff;
+    font-weight:500;
+  }
+  .px-line .px-caret{
+    display:inline-block;width:1.5px;height:.95em;
+    margin-left:1px;vertical-align:-.08em;
+    background:rgba(255,255,255,.65);
+    animation:blinkDot .9s infinite;
+  }
+  .px-line .px-caret.off{display:none}
+  /* summary: fixed under transcript scroll, key–value rows */
+  .px-sum{
+    display:none;
+    margin-top:12px;
+    padding-top:12px;
+    border-top:1px solid rgba(255,255,255,.08);
+  }
+  .px-sum.on{display:block;animation:pxIn .4s var(--ease-out)}
+  .px-sum .k{
+    font-size:11px;
+    color:var(--dim-2);
+    margin-bottom:10px;
+    font-weight:400;
+  }
+  .px-sum-rows{display:flex;flex-direction:column;gap:0}
+  .px-sum-row{
+    display:grid;
+    grid-template-columns:88px 1fr;
+    gap:12px;
+    align-items:baseline;
+    padding:7px 0;
+    border-bottom:1px solid rgba(255,255,255,.05);
+    font-size:13px;line-height:1.4;
+  }
+  .px-sum-row:last-child{border-bottom:none;padding-bottom:0}
+  .px-sum-row .lab{
+    color:var(--dim-2);
+    font-size:12px;
+  }
+  .px-sum-row .val{
+    color:var(--txt);
+    font-weight:450;
+    letter-spacing:-.01em;
+  }
+  .px-sum-row .val em{
+    font-style:normal;
+    color:var(--dim);
+    font-weight:400;
+  }
+  .px-sum-row.is-ok .val{color:var(--green);font-weight:500}
+
+  .px-btn{display:none}
+
+  @media(max-width:720px){
+    .winamp{max-width:100%;margin-top:28px;padding-bottom:72px}
+    .winamp-art{max-height:280px}
+    .winamp-play{width:48px;height:48px}
+    .winamp-deck{width:min(100%, 100%);margin-top:-28px;padding:14px}
+    .px-line.on{grid-template-columns:64px 1fr;gap:8px}
+    .px-name{font-size:13px}
+    .winamp.has-transcript .px-tr{max-height:520px}
+    .px-sum-row{grid-template-columns:76px 1fr;gap:10px}
+  }
+  @media (prefers-reduced-motion: reduce){
+    .winamp-art,.winamp-art img{transition:none !important;transform:none !important}
+  }
+
+  .hr{
+    height:1px;margin:0 var(--pad-x);
+    background:linear-gradient(90deg, transparent, var(--line-2) 20%, var(--line-2) 80%, transparent);
+  }
+
+  #particles{position:absolute;inset:0;pointer-events:none;z-index:1}
+  .hero > *{position:relative;z-index:2}
+  .hero-stage{z-index:2}
+
+  section{padding:120px var(--pad-x)}
+  .fade{opacity:0;transform:translateY(28px);transition:opacity 1s var(--ease-out), transform 1s var(--ease-out)}
+  .fade.vis{opacity:1;transform:none}
+  .row{display:grid;grid-template-columns:minmax(0,440px) 1fr;gap:clamp(48px,8vw,100px);align-items:center;max-width:var(--max);margin:0 auto}
+  .row.flip{grid-template-columns:1fr minmax(0,440px)}
+  .sec-h{display:flex;align-items:center;gap:14px;font-size:clamp(26px,2.8vw,38px);font-weight:350;letter-spacing:-.028em;margin-bottom:20px;line-height:1.1}
+  .sec-h svg{flex:none;opacity:.55}
+  .sec-p{font-size:15.5px;line-height:1.7;color:var(--dim);margin-bottom:26px;max-width:420px;text-wrap:pretty}
+  .checks{list-style:none}
+  .checks li{display:flex;gap:12px;align-items:flex-start;font-size:14px;line-height:1.55;color:var(--mid);margin-bottom:12px}
+  .checks svg{flex:none;margin-top:3px;opacity:.45;color:var(--red-soft)}
+  .sec-label{font-size:11px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--red-soft);margin-bottom:14px;font-family:"JetBrains Mono",monospace}
+  .sec-title{font-size:clamp(28px,3.2vw,44px);font-weight:350;letter-spacing:-.03em;line-height:1.06;margin-bottom:16px}
+  .sec-sub{font-size:15.5px;color:var(--dim);max-width:560px;line-height:1.65}
+  .sec-shell{max-width:var(--max);margin:0 auto}
+
+  .visual{position:relative;min-height:420px;display:flex;align-items:center;justify-content:center;overflow:visible}
+  /* AI field — open, no frame crop */
+  .ai-visual{
+    position:relative;
+    display:block;
+    min-height:min(560px, 78vw);
+    width:100%;
+    aspect-ratio:1;
+    max-height:640px;
+    overflow:visible;
+    cursor:default;
+  }
+  .ai-stage{
+    position:absolute;
+    inset:0;
+    z-index:1;
+    overflow:visible;
+    pointer-events:none;
+  }
+  .ai-glass-frame{
+    position:absolute;
+    inset:0;
+    background:transparent;
+    border:none;
+    box-shadow:none;
+    overflow:visible;
+    pointer-events:none;
+  }
+  .ai-glass-frame::before,
+  .ai-glass-frame::after{display:none}
+  .ai-3d{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    border-radius:0;
+    overflow:visible;
+    touch-action:none;
+    cursor:grab;
+    background:transparent;
+    pointer-events:auto;
+  }
+  .ai-3d:active{cursor:grabbing}
+  .ai-3d canvas{
+    display:block;
+    position:absolute;
+    inset:0;
+    width:100% !important;
+    height:100% !important;
+    image-rendering:auto;
+  }
+  .ai-feed{
+    position:absolute;inset:0;
+    pointer-events:none;
+    z-index:2;
+  }
+  .bubble{
+    position:absolute;max-width:250px;
+    background:rgba(20,20,24,.92);
+    border:1px solid rgba(255,255,255,.1);
+    border-radius:16px;
+    padding:12px 14px;
+    font-size:13px;line-height:1.45;color:rgba(242,242,245,.9);
+    opacity:0;
+    transform:translateY(10px) scale(.98);
+    transition:opacity .6s var(--ease-out), transform .6s var(--ease-out);
+    box-shadow:0 12px 32px rgba(0,0,0,.35);
+  }
+  .bubble.show{opacity:1;transform:none}
+  .bubble .b-tag{
+    font-size:11px;letter-spacing:0;
+    color:rgba(255,255,255,.45);margin-bottom:5px;
+    font-family:inherit;text-transform:none;
+  }
+  .bubble.b1{top:4%;left:0}
+  .bubble.b2{top:38%;right:0;left:auto}
+  .bubble.b3{
+    bottom:4%;left:2%;
+    border-color:rgba(200,16,46,.28);
+    background:rgba(28,16,18,.94);
+  }
+  .bubble.b3 .b-tag{color:rgba(255,180,190,.8)}
+
+
+  .panel{width:100%;max-width:520px}
+  .panel .p-label{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim-2);margin-bottom:28px;font-family:"JetBrains Mono",monospace}
+  .bar-row{margin-bottom:28px}
+  .bar-row .b-name{font-size:14.5px;color:var(--txt);margin-bottom:10px;display:flex;justify-content:space-between;letter-spacing:-.01em}
+  .bar-row .b-val{color:var(--dim);font-variant-numeric:tabular-nums}
+  .bar{height:2.5px;background:rgba(255,255,255,.07);border-radius:2px;overflow:hidden}
+  .bar i{display:block;height:100%;width:0;background:#fff;border-radius:2px;transition:width 1.5s var(--ease-out)}
+  .bar.accent i{background:linear-gradient(90deg,#8F0B21,var(--red))}
+  .vis .bar i{width:var(--w)}
+
+  .cards-head{max-width:640px;margin:0 0 56px}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;width:100%}
+  .card{
+    background:var(--card);border:1px solid var(--line);border-radius:var(--r-md);
+    padding:26px 26px 0;overflow:hidden;display:flex;flex-direction:column;
+    transition:border-color .35s, transform .4s var(--ease), box-shadow .4s;
+  }
+  .card:hover{border-color:var(--line-3);transform:translateY(-4px);box-shadow:0 24px 60px rgba(0,0,0,.4)}
+  .card h3{font-size:18px;font-weight:500;letter-spacing:-.02em;margin-bottom:10px}
+  .card .c-p{font-size:13.5px;line-height:1.6;color:var(--dim);margin-bottom:24px}
+  .mini{margin-top:auto;background:#09090B;border:1px solid var(--line);border-bottom:none;border-radius:12px 12px 0 0;padding:14px 16px;min-height:190px}
+  .mini-bar{display:flex;align-items:center;gap:5px;margin-bottom:14px}
+  .mini-bar i{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.12)}
+  .mini-bar .m-title{margin:0 auto;font-size:11px;color:var(--dim-2)}
+  .m-pill{font-size:10px;padding:2px 8px;border-radius:999px;white-space:nowrap;flex:none;display:inline-flex;align-items:center}
+  .m-pill.rec{color:var(--red-soft);border:1px solid rgba(200,16,46,.5)}
+  .m-pill.rec::before{content:"";display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--red);margin-right:5px;animation:blinkDot 1.4s infinite}
+  @keyframes blinkDot{50%{opacity:.25}}
+  .m-pill.ok{color:var(--green);border:1px solid rgba(61,214,140,.35)}
+  .m-label{font-size:10px;letter-spacing:.12em;color:var(--dim-2);margin:12px 0 7px;text-transform:uppercase;font-family:"JetBrains Mono",monospace}
+  .m-text{font-size:12.5px;line-height:1.55;color:var(--mid)}
+  .m-text .caret{display:inline-block;width:6px;height:12px;background:rgba(255,255,255,.7);vertical-align:-1px;animation:blinkDot .9s infinite}
+  .m-wave{
+    display:flex;align-items:center;gap:2px;height:34px;margin:18px 0 10px;
+    width:100%;min-width:0;overflow:hidden;
+  }
+  .m-wave i{
+    flex:1 1 0;min-width:0;max-height:100%;align-self:center;
+    background:rgba(255,255,255,.28);border-radius:1.5px;height:14%;
+    transition:height .09s linear;
+  }
+  .card.playing .m-wave i{background:rgba(255,255,255,.5)}
+  .m-check{display:flex;gap:9px;font-size:12.5px;color:var(--mid);margin-bottom:8px;align-items:flex-start}
+  .m-check svg{flex:none;margin-top:2px}
+  .m-sync{display:flex;align-items:center;gap:9px;font-size:12px;color:var(--dim);padding:8px 10px;border:1px solid var(--line);border-radius:8px;margin-bottom:8px}
+  .m-sync .s-ok{margin-left:auto;color:var(--green);font-size:11px}
+
+  .convo-visual{display:flex;flex-direction:column;gap:12px;max-width:520px;width:100%;min-width:0}
+  .cv{
+    display:flex;align-items:center;gap:14px;
+    background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;
+    cursor:pointer;transition:border-color .25s, background .25s, transform .25s var(--ease);
+    min-width:0;overflow:hidden;
+  }
+  .cv:hover{border-color:var(--line-2);transform:translateX(3px)}
+  .cv.on{border-color:rgba(200,16,46,.5);background:rgba(200,16,46,.04)}
+  .cv .play{
+    width:40px;height:40px;border-radius:50%;flex:none;border:1px solid var(--line-2);
+    display:grid;place-items:center;background:transparent;color:#fff;cursor:pointer;
+    transition:background .2s,border-color .2s,color .2s;
+  }
+  .cv.on .play{background:#fff;color:#0a0a0a;border-color:#fff}
+  .cv > div:nth-child(2){min-width:0;flex:1 1 auto}
+  .cv .cv-name{font-size:14.5px;color:var(--txt);letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .cv .cv-sub{font-size:12px;color:var(--dim-2);margin-top:3px}
+  .cv .cv-wave{
+    display:flex;align-items:center;gap:2px;height:22px;
+    flex:1 1 72px;min-width:0;max-width:140px;margin-left:auto;overflow:hidden;
+  }
+  .cv .cv-wave i{
+    flex:1 1 0;min-width:0;max-height:100%;align-self:center;
+    background:rgba(255,255,255,.16);border-radius:1px;height:18%;
+    transition:height .13s,background .13s;
+  }
+  .cv .cv-time{font-size:11.5px;color:var(--dim-2);font-variant-numeric:tabular-nums;flex:none}
+  .cv-out{background:#0A0A0C;border:1px solid var(--line);border-radius:14px;padding:18px;font-size:13.5px;line-height:1.6;color:var(--dim);min-height:96px}
+  .cv-out .who{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim-2);font-family:"JetBrains Mono",monospace}
+  .cv-out .said{color:var(--mid);margin:4px 0 12px}
+
+  .cv-out .ai-line{display:flex;gap:9px;align-items:flex-start;border-top:1px solid var(--line);padding-top:12px;margin-top:2px}
+  .cv-out .ai-chip{font-size:9.5px;letter-spacing:.1em;border:1px solid rgba(200,16,46,.55);color:var(--red-soft);border-radius:4px;padding:1.5px 6px;margin-top:1px;font-family:"JetBrains Mono",monospace}
+
+  .strip{
+    display:grid;grid-template-columns:repeat(5,1fr);
+    border:1px solid var(--line);border-radius:var(--r-lg);overflow:hidden;
+    max-width:var(--max);margin:0 auto;width:100%;background:rgba(255,255,255,.01);
+  }
+  .strip > div{padding:36px 24px 40px;border-right:1px solid var(--line);position:relative;transition:background .3s}
+  .strip > div:last-child{border-right:none}
+  .strip > div::before{
+    content:"";position:absolute;top:0;left:0;right:0;height:2px;
+    background:linear-gradient(90deg, var(--red), #ff5a6e);
+    transform:scaleX(0);transform-origin:left;transition:transform .4s var(--ease);
+  }
+  .strip > div:hover{background:rgba(255,255,255,.025)}
+  .strip > div:hover::before{transform:scaleX(1)}
+  .strip .s-ico{
+    width:42px;height:42px;border-radius:12px;border:1px solid var(--line-2);display:grid;place-items:center;
+    color:var(--dim);margin-bottom:22px;background:rgba(255,255,255,.02);
+    transition:color .25s,border-color .25s, box-shadow .3s;
+  }
+  .strip > div:hover .s-ico{color:var(--red-soft);border-color:rgba(200,16,46,.45);box-shadow:0 0 24px rgba(200,16,46,.15)}
+  .strip .s-t{font-size:14.5px;color:var(--txt);margin-bottom:8px;font-weight:500;letter-spacing:-.015em}
+  .strip .s-d{font-size:13px;line-height:1.6;color:var(--dim)}
+  .strip .h-hand,.strip .m-hand{transform-box:view-box;transform-origin:12px 12px}
+  .strip > div:hover .h-hand{animation:handSpin 4.8s linear infinite}
+  .strip > div:hover .m-hand{animation:handSpin 1.6s linear infinite}
+  @keyframes handSpin{to{transform:rotate(360deg)}}
+  .strip > div:hover .ico-search svg{animation:searchLook 1.1s ease-in-out infinite}
+  @keyframes searchLook{0%,100%{transform:translate(0,0)}25%{transform:translate(-2px,-1.5px)}60%{transform:translate(2px,1.5px)}}
+  .strip > div:hover .ico-users svg{animation:usersBounce .9s ease-in-out infinite}
+  @keyframes usersBounce{0%,100%{transform:translateY(0)}40%{transform:translateY(-2.5px)}}
+  .strip .ico-trend polyline{stroke-dasharray:40;stroke-dashoffset:0}
+  .strip > div:hover .ico-trend polyline:first-child{animation:trendDraw 1.6s ease-out infinite}
+  @keyframes trendDraw{0%{stroke-dashoffset:40}60%,100%{stroke-dashoffset:0}}
+  .strip > div:hover .ico-trend polyline:last-child{animation:trendArrow 1.6s ease-out infinite}
+  @keyframes trendArrow{0%,55%{opacity:0}80%,100%{opacity:1}}
+  .strip > div:hover .ico-shield svg{animation:shieldPulse 1.3s ease-in-out infinite}
+  @keyframes shieldPulse{0%,100%{transform:scale(1);filter:none}50%{transform:scale(1.09);filter:drop-shadow(0 0 6px rgba(200,16,46,.55))}}
+
+  /* Pricing — 3 plan cards (mobile-first friendly) */
+  .pricing-grid{
+    display:grid;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:14px;
+    margin:48px auto 0;
+    max-width:var(--max);
+    width:100%;
+    align-items:stretch;
+  }
+  .price-card{
+    position:relative;
+    display:flex;
+    flex-direction:column;
+    border:1px solid var(--line);
+    border-radius:var(--r-lg);
+    padding:26px 22px 22px;
+    background:rgba(255,255,255,.015);
+    transition:border-color .3s, transform .35s var(--ease), box-shadow .35s;
+  }
+  .price-card:hover{
+    border-color:var(--line-3);
+    transform:translateY(-3px);
+    box-shadow:0 20px 48px rgba(0,0,0,.35);
+  }
+  .price-card.is-featured{
+    border-color:rgba(200,16,46,.45);
+    background:
+      radial-gradient(420px 220px at 50% 0%, rgba(200,16,46,.16), transparent 65%),
+      linear-gradient(180deg, rgba(200,16,46,.06), rgba(255,255,255,.015) 42%);
+    box-shadow:0 0 0 1px rgba(200,16,46,.12), 0 24px 56px rgba(0,0,0,.35);
+  }
+  .price-card.is-featured:hover{border-color:rgba(200,16,46,.6)}
+  .price-card .pc-badge{
+    position:absolute;top:14px;right:14px;
+    font-size:10px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;
+    color:var(--red-soft);
+    border:1px solid rgba(200,16,46,.4);
+    background:rgba(200,16,46,.1);
+    border-radius:999px;padding:4px 9px;
+    font-family:"JetBrains Mono",monospace;
+  }
+  .price-card .pc-kicker{
+    font-size:11px;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--dim-2);margin-bottom:10px;
+    font-family:"JetBrains Mono",monospace;
+  }
+  .price-card h3{
+    font-size:18px;font-weight:500;letter-spacing:-.02em;line-height:1.25;
+    margin-bottom:6px;padding-right:72px;min-height:2.5em;
+  }
+  .price-card:not(.is-featured) h3{padding-right:0}
+  .price-card .pc-desc{
+    font-size:13px;line-height:1.5;color:var(--dim);margin-bottom:20px;
+  }
+  .price-card .pc-price{
+    display:flex;align-items:baseline;gap:4px;flex-wrap:wrap;
+    margin-bottom:4px;
+  }
+  .price-card .pc-price .val{
+    font-size:40px;font-weight:500;letter-spacing:-.04em;line-height:1;
+    font-variant-numeric:tabular-nums;
+  }
+  .price-card .pc-price .cents{
+    font-size:.48em;font-weight:500;letter-spacing:-.02em;
+    vertical-align:super;line-height:1;margin-left:1px;
+  }
+  .price-card .pc-price .unit{
+    font-size:13px;color:var(--dim);margin-left:4px;
+  }
+  .price-card .pc-per{
+    font-size:12px;color:var(--dim-2);margin-bottom:22px;
+  }
+  .price-card .pc-feats{
+    list-style:none;
+    display:flex;flex-direction:column;gap:10px;
+    margin:0 0 22px;padding:18px 0 0;
+    border-top:1px solid var(--line);
+    flex:1;
+  }
+  .price-card .pc-feats li{
+    display:flex;gap:10px;align-items:flex-start;
+    font-size:13.5px;line-height:1.4;color:var(--mid);
+  }
+  .price-card .pc-feats li svg{
+    flex:none;margin-top:2px;color:var(--green);opacity:.9;
+  }
+  .price-card .pc-feats li.is-muted{color:var(--dim-2)}
+  .price-card .pc-feats li.is-muted svg{color:var(--dim-2);opacity:.5}
+  .price-card .pc-feats li.is-new{color:var(--txt)}
+  .price-card .pc-feats li.is-new svg{color:var(--red-soft)}
+  .price-card .pc-cta{
+    margin-top:auto;
+    width:100%;
+  }
+  .price-card .pc-cta .btn{width:100%}
+  .price-card.is-featured .pc-cta .btn-white{
+    background:#fff;color:#0a0a0a;
+  }
+  .pr-note{font-size:12px;color:var(--dim-2);margin:16px auto 0;max-width:var(--max);width:100%;line-height:1.5}
+
+  .pro-card{
+    margin:36px auto 0;border:1px solid var(--line);border-radius:var(--r-lg);
+    display:grid;grid-template-columns:1.1fr 1.3fr auto;gap:36px;align-items:center;
+    padding:36px 40px;position:relative;overflow:hidden;max-width:var(--max);width:100%;
+    background:
+      radial-gradient(520px 320px at var(--mx,18%) var(--my,30%), rgba(200,16,46,.12), transparent 62%),
+      linear-gradient(160deg,rgba(255,255,255,.02),transparent 55%);
+    transition:border-color .3s;
+  }
+  .pro-card:hover{border-color:rgba(200,16,46,.35)}
+  .pro-card .pro-addon-tag{
+    display:inline-block;font-size:10px;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--dim-2);font-family:"JetBrains Mono",monospace;margin-bottom:10px;
+  }
+  .pro-card h3{font-size:22px;font-weight:500;letter-spacing:-.02em;margin-bottom:10px}
+  .pro-card .pro-p{font-size:14px;line-height:1.65;color:var(--dim)}
+  .pro-feats{display:flex;flex-direction:column;gap:14px}
+  .pro-feat{display:flex;gap:12px;font-size:13.5px;line-height:1.55;color:var(--mid);align-items:flex-start}
+  .pro-feat svg{flex:none;margin-top:2px;opacity:.7;color:var(--red-soft)}
+  .pro-buy{text-align:center;min-width:160px;padding-left:28px;border-left:1px solid var(--line)}
+  .pro-buy .val{font-size:36px;font-weight:500;letter-spacing:-.03em;line-height:1;font-variant-numeric:tabular-nums}
+  .pro-buy .val .cents{font-size:.48em;vertical-align:super;margin-left:1px}
+  .pro-buy .val small{font-size:13px;color:var(--dim);font-weight:400;margin-left:4px}
+  .pro-buy .fix{font-size:11.5px;color:var(--dim-2);margin:8px 0 16px}
+
+  .steps5{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin:56px auto 0;max-width:var(--max);width:100%;position:relative}
+  .step5{border:1px solid var(--line);border-radius:var(--r-md);padding:24px 18px;transition:border-color .3s, transform .35s var(--ease), box-shadow .35s;position:relative;background:rgba(255,255,255,.015);z-index:1}
+  .step5:hover{border-color:var(--line-3);transform:translateY(-4px);box-shadow:0 20px 50px rgba(0,0,0,.35)}
+  .step5 .n{font-size:11px;color:var(--red);margin-bottom:16px;font-family:"JetBrains Mono",monospace;letter-spacing:.06em}
+  .step5 .ic{width:40px;height:40px;border-radius:11px;border:1px solid var(--line-2);display:grid;place-items:center;color:var(--dim);margin-bottom:16px;background:rgba(255,255,255,.02)}
+  .step5 .t{font-size:14px;font-weight:500;line-height:1.4;letter-spacing:-.01em}
+  .steps-after{display:flex;gap:20px;align-items:center;justify-content:center;margin-top:44px;flex-wrap:wrap}
+  .steps-after p{font-size:14px;color:var(--dim);max-width:420px;line-height:1.6}
+  .store-badges{display:flex;gap:10px}
+  .store-badge{display:inline-flex;align-items:center;gap:9px;border:1px solid var(--line-2);border-radius:12px;padding:10px 16px;color:var(--txt);text-decoration:none;font-size:12.5px;transition:border-color .2s, background .2s, transform .2s;background:rgba(255,255,255,.02)}
+  .store-badge:hover{border-color:rgba(255,255,255,.35);transform:translateY(-1px)}
+  .store-badge .sb-l{font-size:9px;color:var(--dim-2);display:block;letter-spacing:.06em;text-transform:uppercase}
+
+  .admin-wrap{margin:56px auto 0;max-width:var(--max);width:100%}
+  .admin-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px}
+  .atab{border:1px solid var(--line-2);border-radius:999px;padding:8px 15px;cursor:pointer;color:var(--mid);background:transparent;font-family:inherit;font-size:13px;transition:all .25s var(--ease);display:inline-flex;align-items:center;gap:8px}
+  .atab:hover{border-color:rgba(255,255,255,.35);color:var(--txt)}
+  .atab.on{background:#fff;border-color:#fff;color:#0a0a0a;font-weight:500;box-shadow:0 8px 24px rgba(255,255,255,.08)}
+  .atab .new-dot{width:6px;height:6px;border-radius:50%;background:var(--red);box-shadow:0 0 8px var(--red-glow)}
+  .admin-pane{border:1px solid var(--line);border-radius:var(--r-lg);padding:40px;display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center;min-height:280px;background:linear-gradient(170deg,rgba(255,255,255,.03),transparent)}
+  .admin-pane h3{font-size:22px;font-weight:500;letter-spacing:-.02em;margin-bottom:12px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+  .admin-pane .badge{font-size:10px}
+  .admin-pane p{font-size:14.5px;line-height:1.7;color:var(--dim)}
+  .admin-mock{background:#09090B;border:1px solid var(--line);border-radius:14px;padding:18px;min-height:220px}
+  .admin-mock .mini-bar{display:flex;gap:5px;margin-bottom:16px}
+  .admin-mock .mini-bar i{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.12)}
+  .chart-bars{display:flex;align-items:flex-end;gap:8px;height:120px;padding:0 6px}
+  .chart-bars i{flex:1;border-radius:3px 3px 0 0;background:rgba(255,255,255,.1);transition:height .6s var(--ease);animation:barGrow .7s var(--ease) both;transform-origin:bottom}
+  .chart-bars i.hl{background:linear-gradient(180deg,var(--red-soft),var(--red))}
+  @keyframes barGrow{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+  .admin-mock .m-label{font-size:10px;letter-spacing:.12em;color:var(--dim-2);text-transform:uppercase;margin-bottom:8px;font-family:"JetBrains Mono",monospace}
+  .mock-rows .m-sync{display:flex;align-items:center;gap:9px;font-size:12.5px;color:var(--dim);padding:9px 11px;border:1px solid var(--line);border-radius:8px;margin-bottom:8px;opacity:0;animation:rowIn .4s ease both}
+  @keyframes rowIn{from{opacity:0;transform:translateX(-8px)}to{opacity:1;transform:none}}
+  .mock-rows .s-ok{margin-left:auto;color:var(--green);font-size:11px}
+  .admin-pane-content.anim{animation:paneIn .45s var(--ease-out)}
+  .admin-mock.anim{animation:paneIn .55s var(--ease-out) .06s both}
+  @keyframes paneIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+  .mock-avatars{display:flex;gap:10px;align-items:center;padding:6px 2px}
+  .mock-ava{width:38px;height:38px;border-radius:50%;background:#1a1a1e;border:1px solid var(--line-2);display:grid;place-items:center;font-size:12px;font-weight:500;color:var(--mid);position:relative}
+  .mock-ava.ringing{border-color:var(--red)}
+  .mock-ava.ringing::before{content:"";position:absolute;inset:-5px;border-radius:50%;border:1px solid rgba(200,16,46,.5);animation:aiRing 1.6s ease-out infinite}
+  @keyframes aiRing{0%{transform:scale(.5);opacity:.7}70%,100%{transform:scale(1.5);opacity:0}}
+  .mock-timeline{position:relative;height:10px;border-radius:5px;background:rgba(255,255,255,.08);margin:18px 2px 8px}
+  .mock-timeline i{position:absolute;left:8%;right:25%;top:0;bottom:0;border-radius:5px;background:linear-gradient(90deg,#8F0B21,var(--red));animation:tlGrow .8s var(--ease) both;transform-origin:left}
+  @keyframes tlGrow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+  .mock-tl-labels{display:flex;justify-content:space-between;font-size:10px;color:var(--dim-2);padding:0 2px}
+  .fwd-diagram{display:flex;align-items:center;gap:14px;padding:14px 4px}
+  .fwd-node{border:1px solid var(--line-2);border-radius:10px;padding:10px 14px;font-size:12px;color:var(--mid);white-space:nowrap}
+  .fwd-node.to{border-color:rgba(61,214,140,.4);color:var(--green)}
+  .fwd-line{flex:1;height:2px;min-width:40px;background-image:linear-gradient(90deg,var(--red) 55%,transparent 45%);background-size:10px 2px;animation:fwdDash 1s linear infinite}
+  @keyframes fwdDash{to{background-position:10px 0}}
+  .mock-wave-line{display:flex;align-items:center;gap:2px;height:34px;flex:1}
+  .mock-wave-line i{flex:1;background:rgba(255,255,255,.3);border-radius:1.5px;height:20%}
+  .type-caret{display:inline-block;width:6px;height:12px;background:rgba(255,255,255,.7);vertical-align:-1px;animation:blinkDot .9s infinite}
+
+  .faq-wrap{max-width:720px;margin:56px auto 0}
+  .faq{border-top:1px solid var(--line)}
+  .faq:last-child{border-bottom:1px solid var(--line)}
+  .faq-q{width:100%;display:flex;align-items:center;justify-content:space-between;gap:20px;padding:22px 4px;background:none;border:none;cursor:pointer;font-family:inherit;font-size:15.5px;color:var(--txt);text-align:left;transition:color .2s;letter-spacing:-.01em}
+  .faq-q:hover{color:var(--red-soft)}
+  .faq-q .pl{flex:none;width:22px;height:22px;position:relative;opacity:.45;transition:transform .4s var(--ease)}
+  .faq-q .pl::before,.faq-q .pl::after{content:"";position:absolute;background:currentColor;top:50%;left:50%;transform:translate(-50%,-50%)}
+  .faq-q .pl::before{width:13px;height:1.5px}
+  .faq-q .pl::after{width:1.5px;height:13px;transition:opacity .3s}
+  .faq.open .faq-q .pl{transform:rotate(90deg)}
+  .faq.open .faq-q .pl::after{opacity:0}
+  .faq-a{max-height:0;overflow:hidden;transition:max-height .5s var(--ease)}
+  .faq-a-inner{padding:0 40px 24px 4px;font-size:14.5px;line-height:1.7;color:var(--dim)}
+
+  .cta{text-align:center;padding:160px 24px 140px;position:relative}
+  .cta::before{
+    content:"";position:absolute;left:50%;top:40%;transform:translate(-50%,-50%);
+    width:min(720px,90vw);height:320px;pointer-events:none;
+    background:radial-gradient(ellipse, rgba(200,16,46,.14), transparent 68%);filter:blur(8px);
+  }
+  .cta h2{font-size:clamp(36px,5vw,64px);font-weight:300;letter-spacing:-.035em;line-height:1.05;margin-bottom:24px;position:relative}
+  .cta h2 .dim{color:transparent;background:linear-gradient(180deg,rgba(255,255,255,.4),rgba(255,255,255,.16));-webkit-background-clip:text;background-clip:text}
+  .cta p{font-size:16px;color:var(--dim);margin-bottom:36px;position:relative}
+  footer{border-top:1px solid var(--line);padding:36px var(--pad-x);display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;font-size:12.5px;color:var(--dim-2)}
+
+  @media (prefers-reduced-motion: reduce){
+    *,*::before,*::after{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important}
+    .fade{opacity:1;transform:none}
+  }
+
+  /* ---------- tablet / small laptop ---------- */
+  @media(max-width:1060px){
+    :root{--nav-h:72px;--pad-x:20px}
+    nav{padding:0 16px;gap:12px;height:72px}
+    nav.scrolled{height:64px}
+    .nav-links{display:none}
+    .nav-cta{display:none}
+    .nav-toggle{display:inline-flex}
+    .logo-product,.logo-sep{display:none}
+    .logo-img{height:48px}
+    nav{justify-content:space-between}
+    nav .btn{height:40px;padding:0 14px;font-size:13px;flex:none}
+
+    .nav-backdrop{
+      display:block;position:fixed;inset:0;z-index:110;
+      background:rgba(0,0,0,.55);backdrop-filter:blur(6px);
+      -webkit-backdrop-filter:blur(6px);
+      opacity:0;pointer-events:none;
+      transition:opacity .3s var(--ease);
+    }
+    .nav-backdrop.open{opacity:1;pointer-events:auto}
+    .nav-drawer{
+      display:flex;flex-direction:column;gap:4px;
+      position:fixed;top:0;right:0;bottom:0;z-index:115;
+      width:min(320px,86vw);
+      padding:calc(var(--nav-h) + 12px) 20px 28px;
+      background:rgba(12,12,14,.97);
+      border-left:1px solid var(--line);
+      box-shadow:-24px 0 60px rgba(0,0,0,.45);
+      transform:translateX(105%);
+      transition:transform .35s var(--ease);
+      overflow-y:auto;-webkit-overflow-scrolling:touch;
+    }
+    .nav-drawer.open{transform:translateX(0)}
+    .nav-drawer a{
+      display:block;color:var(--txt);text-decoration:none;
+      font-size:17px;font-weight:400;letter-spacing:-.02em;
+      padding:14px 12px;border-radius:12px;
+      border-bottom:1px solid var(--line);
+      transition:background .2s,color .2s;
+    }
+    .nav-drawer a:last-of-type{border-bottom:none}
+    .nav-drawer a:hover,
+    .nav-drawer a:active{background:rgba(255,255,255,.04);color:#fff}
+    .nav-drawer .nav-drawer-cta{
+      margin-top:18px;text-align:center;
+      border:1px solid var(--line-2) !important;
+      background:rgba(255,255,255,.04);
+    }
+    body.nav-open{overflow:hidden;touch-action:none}
+
+    section{padding:72px var(--pad-x)}
+    section[style*="padding-top"]{padding-left:var(--pad-x);padding-right:var(--pad-x)}
+    .hr{margin:0 var(--pad-x)}
+
+    .hero{padding:calc(var(--nav-h) + 28px) 16px 0}
+    .hero-stage{padding-bottom:16px}
+    .eyebrow{margin-bottom:18px;font-size:12px;flex-wrap:wrap;justify-content:center;max-width:100%}
+    .hero-sub{margin:16px auto 22px;padding:0 4px}
+    .hero-ctas{width:100%;max-width:400px;flex-direction:column;align-items:stretch}
+    .hero-ctas .btn{width:100%}
+    .meta-row{gap:6px;padding:0 4px}
+    .meta-row span{padding:6px 10px;font-size:11.5px}
+
+    .winamp{margin-top:24px;padding:0 0 56px;max-width:100%}
+    .winamp-art{max-height:min(340px,58vw)}
+    .winamp-deck{width:100%;margin-top:-28px;padding:14px}
+    .winamp-play{width:52px;height:52px}
+
+    .row,.row.flip{grid-template-columns:1fr;gap:32px}
+    .sec-h{font-size:clamp(24px,6.5vw,34px);align-items:flex-start;gap:12px}
+    .sec-h svg{margin-top:4px;width:22px;height:22px}
+    .sec-p{max-width:none}
+    .sec-title{font-size:clamp(26px,7vw,36px)}
+    .sec-sub{max-width:none}
+    .visual{flex-direction:column;min-height:0;width:100%}
+    .panel{max-width:100%}
+    .convo-visual{max-width:100%}
+
+    /* AI field: stage in-flow, bubbles below — no crop / overlap */
+    .ai-visual{
+      aspect-ratio:auto;
+      min-height:0;
+      max-height:none;
+      height:auto;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:14px;
+      padding:8px 0 4px;
+      overflow:visible;
+    }
+    .ai-stage{
+      position:relative;
+      inset:auto;
+      width:min(100%,360px);
+      aspect-ratio:1;
+      margin:0 auto;
+      pointer-events:auto;
+      flex:none;
+    }
+    .ai-glass-frame{
+      position:absolute;inset:0;
+      pointer-events:none;
+    }
+    .ai-3d{
+      position:absolute;inset:0;
+      width:100%;height:100%;
+      pointer-events:auto;
+    }
+    .ai-feed{
+      position:relative;inset:auto;
+      display:flex;flex-direction:column;gap:8px;
+      width:100%;margin:0;pointer-events:auto;z-index:2;
+    }
+    .bubble,.bubble.b1,.bubble.b2,.bubble.b3{
+      position:relative;top:auto;left:auto;right:auto;bottom:auto;
+      max-width:100%;opacity:1;transform:none;
+      width:100%;
+    }
+    .bubble.b3{background:rgba(28,16,18,.94)}
+
+    .grid3{grid-template-columns:1fr;gap:14px}
+    .cards-head{margin-bottom:28px;max-width:none}
+    .card{padding:20px 18px 0}
+
+    .strip{grid-template-columns:1fr 1fr}
+    .strip > div{
+      border-right:1px solid var(--line);
+      border-bottom:1px solid var(--line);
+      padding:28px 18px 32px;
+    }
+    .strip > div:nth-child(2n){border-right:none}
+    .strip > div:last-child{border-bottom:none;border-right:none}
+    /* odd last item spanning: remove bottom from second-last if odd count */
+    .strip > div:nth-child(odd):nth-last-child(2){border-bottom:none}
+
+    .pricing-grid{grid-template-columns:1fr;gap:12px;margin-top:32px}
+    .price-card{padding:22px 18px 18px}
+    .price-card h3{min-height:0;padding-right:0;font-size:17px}
+    .price-card.is-featured h3{padding-right:90px}
+    .price-card .pc-price .val{font-size:28px}
+    .price-card .pc-badge{top:16px;right:16px}
+    /* Featured first on mobile for decision clarity */
+    .pricing-grid .price-card.is-featured{order:-1}
+    .pro-card{grid-template-columns:1fr;gap:22px;padding:22px 18px}
+    .pro-buy{min-width:0;width:100%;padding-left:0;border-left:none;border-top:1px solid var(--line);padding-top:20px;text-align:left}
+    .pro-buy .btn{width:100%}
+
+    .steps5{grid-template-columns:1fr 1fr;gap:10px;margin-top:36px}
+    .step5{padding:18px 14px}
+    .steps-after{flex-direction:column;align-items:stretch;gap:16px;margin-top:28px;text-align:left}
+    .steps-after p{max-width:none}
+    .store-badges{flex-wrap:wrap;width:100%}
+    .store-badge{flex:1 1 140px;justify-content:center}
+
+    .admin-pane{grid-template-columns:1fr;gap:20px;padding:18px;min-height:0}
+    .admin-tabs{gap:6px}
+    .atab{padding:8px 12px;font-size:12.5px}
+    .admin-wrap{margin-top:36px}
+
+    .faq-wrap{margin-top:32px}
+    .faq-q{padding:18px 2px;font-size:15px;gap:12px}
+    .faq-a-inner{padding:0 28px 18px 2px;font-size:14px}
+
+    .cta{padding:96px 20px 88px}
+    .cta h2{font-size:clamp(30px,9vw,48px)}
+    .cta p{font-size:15px;margin-bottom:28px;padding:0 8px}
+    .cta .btn{min-width:min(100%,220px)}
+
+    footer{
+      padding:24px 16px;
+      flex-direction:column;
+      align-items:flex-start;
+      gap:12px;
+      font-size:12px;
+    }
+    footer > span:last-child{line-height:1.45;color:var(--dim-2)}
+
+    .cv{padding:12px 14px;gap:10px 12px;flex-wrap:wrap}
+    .cv:hover{transform:none}
+    .cv > div:nth-child(2){flex:1 1 calc(100% - 120px);min-width:0}
+    .cv .cv-wave{flex:1 1 100%;max-width:none;margin-left:0;order:5}
+    .cv .cv-time{margin-left:auto}
+    .cv .cv-name{white-space:normal}
+
+    .fwd-diagram{flex-wrap:wrap;justify-content:center}
+    .fwd-line{min-width:24px}
+  }
+
+  /* ---------- phone ---------- */
+  @media(max-width:560px){
+    :root{--pad-x:16px;--nav-h:64px}
+    nav{height:64px;padding:0 12px}
+    nav.scrolled{height:58px}
+    .logo-img{height:40px}
+    nav .btn{height:36px;padding:0 12px;font-size:12.5px}
+
+    section{padding:56px var(--pad-x)}
+    .hero{padding:calc(var(--nav-h) + 20px) 14px 0}
+    h1{font-size:clamp(30px,8.8vw,40px);letter-spacing:-.03em}
+    .hero-sub{font-size:14.5px;line-height:1.6}
+    .btn{height:48px;padding:0 18px;font-size:14px} /* comfortable tap */
+    nav .btn{height:36px;padding:0 12px;font-size:12.5px}
+
+    .winamp{padding-bottom:40px}
+    .winamp-art{max-height:min(280px,72vw)}
+    .winamp-play{width:48px;height:48px}
+    .winamp-deck{padding:12px;border-radius:12px;margin-top:-22px}
+    .px-name{font-size:13px;white-space:normal}
+    .px-sub{font-size:11.5px}
+    .winamp.has-transcript .px-tr{max-height:none}
+    .px-line.on{grid-template-columns:56px 1fr;gap:8px}
+    .px-sum-row{grid-template-columns:72px 1fr;gap:8px;font-size:12.5px}
+
+    .sec-h{font-size:clamp(22px,6.2vw,28px);margin-bottom:14px}
+    .checks li{font-size:13.5px;gap:10px}
+    .ai-stage{width:min(100%,300px)}
+
+    .strip{grid-template-columns:1fr}
+    .strip > div{
+      border-right:none !important;
+      border-bottom:1px solid var(--line);
+      padding:22px 18px 24px;
+    }
+    .strip > div:last-child{border-bottom:none !important}
+
+    .steps5{grid-template-columns:1fr;gap:8px}
+    .step5{display:grid;grid-template-columns:auto auto 1fr;align-items:center;gap:12px;padding:14px 14px}
+    .step5 .n{margin-bottom:0}
+    .step5 .ic{margin-bottom:0;width:36px;height:36px}
+    .step5 .t{font-size:13.5px}
+
+    .pricing-grid{gap:10px;margin-top:28px}
+    .price-card{padding:18px 16px 16px;border-radius:var(--r-md)}
+    .price-card .pc-feats{gap:9px;margin-bottom:18px;padding-top:14px}
+    .price-card .pc-feats li{font-size:13px}
+    .pro-card{padding:18px 14px;margin-top:20px}
+    .pro-card h3{font-size:19px}
+    .pro-buy .val{font-size:22px}
+
+    .admin-tabs{overflow-x:auto;-webkit-overflow-scrolling:touch;flex-wrap:nowrap;padding-bottom:4px}
+    .atab{flex:none;white-space:nowrap}
+    .admin-pane{padding:14px}
+    .admin-mock{padding:14px;min-height:180px}
+
+    .cta{padding:72px 16px 64px}
+    .cta h2 br{display:none}
+    footer > span:first-child{flex-wrap:wrap;gap:8px}
+    footer img{height:18px !important}
+
+    .cv .cv-name{font-size:13.5px}
+    .cv .play{width:44px;height:44px}
+  }
+
+  @media(max-width:380px){
+    .meta-row span{width:100%;justify-content:center}
+    .store-badge{flex:1 1 100%}
+  }
+  /* tablet: 3 cards stay if room, else stack already at 1060 */
+  @media(min-width:761px) and (max-width:1060px){
+    .pricing-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+    .pricing-grid .price-card.is-featured{order:0}
+    .price-card{padding:20px 14px 16px}
+    .price-card h3{font-size:15.5px;min-height:2.8em}
+    .price-card .pc-price .val{font-size:24px}
+    .price-card .pc-feats li{font-size:12.5px}
+    .price-card .pc-badge{font-size:9px;padding:3px 7px}
+  }
+</style>
+</head>
+<body>
+
+<div class="scroll-progress" id="scrollProgress"></div>
+<nav>
+  <a class="logo" href="#">
+    <img class="logo-img" src="assets/lmt-biznesam-logo-on-dark.svg" alt="LMT biznesam" width="280" height="87">
+    <span class="logo-sep" aria-hidden="true"></span>
+    <span class="logo-product">Zvanu pārvaldnieks</span>
+  </a>
+  <div class="nav-links">
+    <a href="#demo">Demo</a>
+    <a href="#dzirdi">Iespējas</a>
+    <a href="#plusma">Kā tas strādā</a>
+    <a href="#piemeri">Sarunu piemēri</a>
+    <a href="#cenas">Cenas</a>
+    <a href="#faq">FAQ</a>
+  </div>
+  <a class="btn btn-line nav-cta" href="#cta">Sazinies</a>
+  <button class="nav-toggle" id="navToggle" type="button" aria-label="Izvēlne" aria-expanded="false" aria-controls="navDrawer">
+    <span aria-hidden="true"></span>
+  </button>
+</nav>
+<div class="nav-backdrop" id="navBackdrop" hidden></div>
+<div class="nav-drawer" id="navDrawer" role="dialog" aria-modal="true" aria-label="Navigācija" hidden>
+  <a href="#demo">Demo</a>
+  <a href="#dzirdi">Iespējas</a>
+  <a href="#plusma">Kā tas strādā</a>
+  <a href="#piemeri">Sarunu piemēri</a>
+  <a href="#cenas">Cenas</a>
+  <a href="#faq">FAQ</a>
+  <a class="nav-drawer-cta" href="#cta">Sazinies</a>
+</div>
+
+<!-- HERO -->
+<header class="hero">
+  <canvas id="particles"></canvas>
+  <div class="hero-stage">
+  <div class="eyebrow">
+    <span class="wave-ico"><i></i><i></i><i></i><i></i><i></i></span>
+    MI transkripcija
+    <span class="badge">Jaunums</span>
+  </div>
+  <h1>Svarīgais no klienta sarunām<br><span class="dim">vairs nepazūd</span></h1>
+  <p class="hero-sub">Zvanu pārvaldnieks pārraksta katru sarunu tekstā un izveido kopsavilkumu — ko klients jautāja, kas tika solīts un kādi ir nākamie soļi.</p>
+  <div class="hero-ctas">
+    <a class="btn btn-white" href="#demo">Izmēģini demo</a>
+    <a class="btn btn-line" href="#dzirdi">
+      <svg width="11" height="12" viewBox="0 0 11 12" fill="currentColor"><path d="M0 0l11 6-11 6z"/></svg>
+      Kā tas strādā
+    </a>
+  </div>
+  <div class="meta-row">
+    <span><svg width="12" height="10" viewBox="0 0 12 10" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M1 5.5 4.2 8.5 11 1.5"/></svg> Latviešu valodā</span>
+    <span><svg width="12" height="10" viewBox="0 0 12 10" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M1 5.5 4.2 8.5 11 1.5"/></svg> Kopsavilkums &lt;30 sekundēs</span>
+    <span><svg width="12" height="10" viewBox="0 0 12 10" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M1 5.5 4.2 8.5 11 1.5"/></svg> Dati tiek apstrādāti Latvijā</span>
+  </div>
+  </div>
+
+  <!-- Winamp-style call player · Mediator art + glass deck -->
+  <div class="winamp fade vis" id="demo">
+    <div class="winamp-art-stage">
+      <div class="winamp-art" id="heroVisual">
+        <picture>
+          <source srcset="assets/hero-group-3492.webp" type="image/webp">
+          <img src="assets/hero-group-3492.jpg" alt="" width="2000" height="1334" decoding="async" fetchpriority="high">
+        </picture>
+        <span class="winamp-shine" aria-hidden="true"></span>
+        <button class="winamp-play" id="pxBtn" aria-label="Atskaņot">
+          <svg width="16" height="18" viewBox="0 0 12 14" fill="currentColor"><path d="M0 0l12 7-12 7z"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="winamp-deck">
+      <div class="px-top">
+        <div class="px-meta">
+          <div class="px-name">Elīna Bērziņa → SIA “Tavs Uzņēmums”</div>
+          <div class="px-sub">Ienākošais zvans · +371 29 ••• •••</div>
+        </div>
+        <div class="px-state" id="pxState">Gatavs</div>
+      </div>
+      <div class="scrub-wrap" id="scrubWrap">
+        <div class="scrub-wave" id="scrubWave"></div>
+        <div class="scrub-needle" id="scrubNeedle"></div>
+        <input type="range" class="scrub" id="scrub" min="0" max="1000" value="0" aria-label="Zvana laika josla">
+      </div>
+      <div class="scrub-times"><span id="tCur">0:00</span><span>0:15</span></div>
+      <div class="px-tr" id="pxTr">
+        <div class="px-line" data-at="4" data-role="klients"><div class="w">Klients</div><div class="t">Labdien! Zvanu par pasūtījumu #4821 — vai <span class="hl">piegādi var pārcelt uz piektdienu</span>?</div></div>
+        <div class="px-line" data-at="30" data-role="darbinieks"><div class="w">Darbinieks</div><div class="t">Paskatīšos… jā, varam. Un <span class="hl">atzvanīšu līdz plkst. 16:00</span> ar apstiprinājumu.</div></div>
+        <div class="px-line" data-at="62" data-role="klients"><div class="w">Klients</div><div class="t">Lieliski! Vēl man ir <span class="hl">mainījusies piegādes adrese</span>.</div></div>
+        <div class="px-line" data-at="82" data-role="darbinieks"><div class="w">Darbinieks</div><div class="t">Atjaunošu adresi pasūtījumam. Paldies par zvanu!</div></div>
+      </div>
+      <div class="px-sum" data-at="97" id="pxSum">
+        <div class="k">Kopsavilkums</div>
+        <div class="px-sum-rows">
+          <div class="px-sum-row">
+            <span class="lab">Piegāde</span>
+            <span class="val">Piektdiena, 24.07.</span>
+          </div>
+          <div class="px-sum-row">
+            <span class="lab">Uzdevums</span>
+            <span class="val">Atzvanīt līdz 16:00</span>
+          </div>
+          <div class="px-sum-row">
+            <span class="lab">Adrese</span>
+            <span class="val">Atjaunot · #4821</span>
+          </div>
+          <div class="px-sum-row is-ok">
+            <span class="lab">CRM</span>
+            <span class="val">Pievienots</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="hr"></div>
+
+<!-- ROW 1 : live conversation -->
+<section id="dzirdi">
+  <div class="row fade">
+    <div>
+      <div class="sec-h">
+        <svg width="26" height="26" viewBox="0 0 26 26" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M4 10v6M9 6v14M13 9v8M17 4v18M22 11v4"/></svg>
+        Redzi katru sarunu
+      </div>
+      <p class="sec-p">Klients zvana — saruna tiek ierakstīta un tajā pašā brīdī pārvēršas tekstā. Neviens solījums vairs nepaliek tikai atmiņā.</p>
+      <ul class="checks">
+        <li><svg width="13" height="11" viewBox="0 0 12 10" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M1 5.5 4.2 8.5 11 1.5"/></svg>Automātiska transkripcija latviešu valodā, arī sarunvalodai.</li>
+        <li><svg width="13" height="11" viewBox="0 0 12 10" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M1 5.5 4.2 8.5 11 1.5"/></svg>Meklē sarunās pēc atslēgas vārdiem — kā tekstā, ne ierakstā.</li>
+      </ul>
+    </div>
+    <div class="visual ai-visual" id="orbVisual">
+      <div class="ai-stage" id="aiStage">
+        <div class="ai-glass-frame">
+          <div class="ai-3d" id="ai3d" aria-label="Interaktīvs MI vizualizācija"></div>
+        </div>
+      </div>
+      <div class="ai-feed">
+        <div class="bubble b1" data-i="0"><div class="b-tag">Klients</div>Labdien! Vai <span class="hl">piegādi var pārcelt uz piektdienu</span>? Ceturtdien nebūšu mājās.</div>
+        <div class="bubble b2" data-i="1"><div class="b-tag">Darbinieks</div>Varam nokārtot — <span class="hl">atzvanīšu līdz 16:00</span> ar apstiprinājumu.</div>
+        <div class="bubble b3" data-i="2"><div class="b-tag">Kopsavilkums</div>Piegāde → piektdiena, 24.07. · Atzvanīt līdz 16:00</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ROW 2 : summary speed -->
+<section style="padding-top:0">
+  <div class="row flip fade">
+    <div class="visual">
+      <div class="panel">
+        <div class="p-label mono">Pēc zvana beigām</div>
+        <div class="bar-row"><div class="b-name">Transkripcija gatava <span class="b-val">tūlīt</span></div><div class="bar"><i style="--w:100%"></i></div></div>
+        <div class="bar-row"><div class="b-name">MI kopsavilkums <span class="b-val">&lt;30 s</span></div><div class="bar accent"><i style="--w:78%"></i></div></div>
+        <div class="bar-row"><div class="b-name">Ieraksta noklausīšanās manuāli <span class="b-val">8–12 min</span></div><div class="bar"><i style="--w:14%;background:rgba(255,255,255,.25)"></i></div></div>
+      </div>
+    </div>
+    <div>
+      <div class="sec-h">
+        <svg width="26" height="26" viewBox="0 0 26 26" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="13" cy="13" r="10"/><path d="M13 7v6l4 2"/></svg>
+        Kopsavilkums, kamēr noliec klausuli
+      </div>
+      <p class="sec-p">Vairums risinājumu tikai ieraksta. Zvanu pārvaldnieks saprot — MI izceļ jautājumus, solījumus un termiņus, pirms esi paguvis atvērt piezīmes.</p>
+      <ul class="checks">
+        <li><svg width="13" height="11" viewBox="0 0 12 10" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M1 5.5 4.2 8.5 11 1.5"/></svg>Nav jāklausās ieraksti — svarīgākais jau ir izcelts.</li>
+        <li><svg width="13" height="11" viewBox="0 0 12 10" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M1 5.5 4.2 8.5 11 1.5"/></svg>Nekas netiek palaists garām, solījumi tiek izpildīti.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ROW 3 : tools/CRM -->
+<section style="padding-top:0">
+  <div class="row fade">
+    <div>
+      <div class="sec-h">
+        <svg width="26" height="26" viewBox="0 0 26 26" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="3" y="3" width="8" height="8" rx="2"/><rect x="15" y="3" width="8" height="8" rx="2"/><rect x="3" y="15" width="8" height="8" rx="2"/><rect x="15" y="15" width="8" height="8" rx="2"/></svg>
+        Tavi rīki, jau savienoti
+      </div>
+      <p class="sec-p">Kopsavilkums automātiski nonāk tur, kur strādā komanda — klienta kartītē, uzdevumu sarakstā, CRM sistēmā.</p>
+      <ul class="checks">
+        <li><svg width="13" height="11" viewBox="0 0 12 10" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M1 5.5 4.2 8.5 11 1.5"/></svg>Kopsavilkumu ir iespējams pievienot CRM sistēmā.</li>
+        <li><svg width="13" height="11" viewBox="0 0 12 10" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M1 5.5 4.2 8.5 11 1.5"/></svg>Vieglāk uzraudzīt un analizēt komandas darbu.</li>
+      </ul>
+    </div>
+    <div class="visual">
+      <svg width="440" height="300" viewBox="0 0 440 300" fill="none" style="max-width:100%;height:auto;display:block">
+        <circle cx="60" cy="150" r="26" stroke="rgba(255,255,255,.18)"/>
+        <path d="M60 141v10m-6-5a6 7 0 0 0 12 0M56 163h8" stroke="rgba(255,255,255,.65)" stroke-width="1.4" stroke-linecap="round"/>
+        <path d="M86 150h60" stroke="rgba(255,255,255,.14)" stroke-dasharray="3 5"/>
+        <path d="M146 150c40 0 40-80 80-80" stroke="rgba(255,255,255,.14)" stroke-dasharray="3 5"/>
+        <path d="M146 150h80" stroke="rgba(200,16,46,.55)" stroke-dasharray="3 5"/>
+        <path d="M146 150c40 0 40 80 80 80" stroke="rgba(255,255,255,.14)" stroke-dasharray="3 5"/>
+        <rect x="226" y="50" width="176" height="40" rx="9" stroke="rgba(255,255,255,.14)"/>
+        <circle cx="244" cy="70" r="3" fill="rgba(255,255,255,.3)"/>
+        <text x="256" y="74" fill="rgba(255,255,255,.6)" font-size="11" font-family="ui-monospace,Menlo,monospace">klienta_kartīte</text>
+        <rect x="226" y="130" width="176" height="40" rx="9" stroke="rgba(200,16,46,.6)"/>
+        <circle cx="244" cy="150" r="3" fill="#C8102E"/>
+        <text x="256" y="154" fill="rgba(255,255,255,.82)" font-size="11" font-family="ui-monospace,Menlo,monospace">crm_kopsavilkums</text>
+        <rect x="226" y="210" width="176" height="40" rx="9" stroke="rgba(255,255,255,.14)"/>
+        <circle cx="244" cy="230" r="3" fill="rgba(255,255,255,.3)"/>
+        <text x="256" y="234" fill="rgba(255,255,255,.6)" font-size="11" font-family="ui-monospace,Menlo,monospace">uzdevums_kolēģim</text>
+        <path d="M402 150h16" stroke="rgba(61,214,140,.5)"/>
+        <path d="M414 145l6 5-6 5" stroke="rgba(61,214,140,.7)" stroke-width="1.4" fill="none"/>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- 3 CARDS : the flow as live mini-UIs -->
+<section id="plusma" style="padding-top:60px">
+  <div class="fade sec-shell">
+    <div class="cards-head">
+      <div class="sec-h" style="margin-bottom:16px">No zvana līdz CRM</div>
+      <p class="sec-p" style="max-width:560px">Trīs soļi, kas notiek paši. Demonstrācija zemāk atkārtojas ar īstu sarunas fragmentu.</p>
+    </div>
+    <div class="grid3">
+      <div class="card">
+        <h3>Zvanu ieraksts</h3>
+        <p class="c-p">Klients zvana tavam uzņēmumam — saruna tiek droši ierakstīta.</p>
+        <div class="mini">
+          <div class="mini-bar"><i></i><i></i><i></i><span class="m-title">Ienākošais zvans</span><span class="m-pill rec">IERAKSTS</span></div>
+          <div class="m-text" style="color:var(--txt)">Elīna Bērziņa</div>
+          <div class="m-text" style="font-size:11.5px;color:var(--dim-2)">+371 29 ••• ••• · 00:<span id="callSec">00</span></div>
+          <div class="m-wave" id="miniWave"></div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Transkripcija</h3>
+        <p class="c-p">Saruna automātiski pārrakstīta tekstā — katrs vārds kļūst meklējams.</p>
+        <div class="mini">
+          <div class="mini-bar"><i></i><i></i><i></i><span class="m-title">transkripts.txt</span></div>
+          <div class="m-label mono">## Klients</div>
+          <div class="m-text" id="tLine1"></div>
+          <div class="m-label mono">## Darbinieks</div>
+          <div class="m-text" id="tLine2"></div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Kopsavilkums → CRM</h3>
+        <p class="c-p">MI izveido īsu kopsavilkumu un pievieno to CRM sistēmā.</p>
+        <div class="mini">
+          <div class="mini-bar"><i></i><i></i><i></i><span class="m-title">Kopsavilkums</span><span class="m-pill ok" id="syncPill" style="opacity:0">Sinhronizēts</span></div>
+          <div id="sumChecks" style="margin-top:14px"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONVERSATION EXAMPLES -->
+<section id="piemeri" style="padding-top:60px">
+  <div class="row fade">
+    <div>
+      <div class="sec-h">
+        <svg width="26" height="26" viewBox="0 0 26 26" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M23 12a9 9 0 0 1-9 9H4l3-4a9 9 0 1 1 16-5z"/></svg>
+        Paklausies piemērus
+      </div>
+      <p class="sec-p">Īsti sarunu scenāriji — atskaņo un skaties, ko MI no tiem izvelk: solījumus, datumus, darāmos darbus.</p>
+      <ul class="checks">
+        <li><svg width="13" height="11" viewBox="0 0 12 10" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M1 5.5 4.2 8.5 11 1.5"/></svg>Viegli atrast būtisko jebkurā sarunā.</li>
+        <li><svg width="13" height="11" viewBox="0 0 12 10" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M1 5.5 4.2 8.5 11 1.5"/></svg>Labāka klientu apkalpošana bez papildu piepūles.</li>
+      </ul>
+    </div>
+    <div class="visual" style="align-items:stretch;flex-direction:column;justify-content:center;display:flex;gap:14px">
+      <div class="convo-visual">
+        <div class="cv" data-i="0">
+          <button class="play" aria-label="Atskaņot">
+            <svg class="ic-play" width="10" height="12" viewBox="0 0 10 12" fill="currentColor"><path d="M0 0l10 6-10 6z"/></svg>
+          </button>
+          <div><div class="cv-name">Piegādes laika maiņa</div><div class="cv-sub">Klientu serviss</div></div>
+          <div class="cv-wave"></div><div class="cv-time">0:42</div>
+        </div>
+        <div class="cv" data-i="1">
+          <button class="play" aria-label="Atskaņot">
+            <svg class="ic-play" width="10" height="12" viewBox="0 0 10 12" fill="currentColor"><path d="M0 0l10 6-10 6z"/></svg>
+          </button>
+          <div><div class="cv-name">Jauna pakalpojuma pieteikums</div><div class="cv-sub">Pārdošana</div></div>
+          <div class="cv-wave"></div><div class="cv-time">0:58</div>
+        </div>
+        <div class="cv-out" id="cvOut">
+          <span style="color:var(--dim-2)">Izvēlies sarunu, lai redzētu, ko MI tajā pamanīja.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- BENEFITS STRIP -->
+<section id="ieguvumi" style="padding-top:40px;padding-bottom:40px">
+  <div class="fade sec-shell">
+    <div class="strip">
+      <div>
+        <div class="s-ico ico-clock"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line class="h-hand" x1="12" y1="12" x2="12" y2="7.5"/><line class="m-hand" x1="12" y1="12" x2="15.5" y2="13.5"/></svg></div>
+        <div class="s-t">Ietaupa laiku</div><div class="s-d">Nav jāklausās ieraksti — svarīgākais jau ir izcelts.</div>
+      </div>
+      <div>
+        <div class="s-ico ico-search"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
+        <div class="s-t">Viegli atrast būtisko</div><div class="s-d">Meklē sarunās pēc atslēgas vārdiem.</div>
+      </div>
+      <div>
+        <div class="s-ico ico-users"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+        <div class="s-t">Labāka apkalpošana</div><div class="s-d">Nekas netiek palaists garām, solījumi tiek izpildīti.</div>
+      </div>
+      <div>
+        <div class="s-ico ico-trend"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 18 8.5 10.5 13.5 15.5 23 6"/><polyline points="17 6 23 6 23 12"/></svg></div>
+        <div class="s-t">Uzlabota kvalitāte</div><div class="s-d">Vieglāk uzraudzīt un analizēt komandas darbu.</div>
+      </div>
+      <div>
+        <div class="s-ico ico-shield"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+        <div class="s-t">Droši un uzticami</div><div class="s-d">Dati tiek apstrādāti Latvijā.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PAKALPOJUMU CENAS -->
+<section id="cenas" style="padding-top:60px">
+  <div class="fade sec-shell">
+    <div class="sec-label">Pakalpojumu cenas</div>
+    <h2 class="sec-title">Izvēlies savu līmeni</h2>
+    <p class="sec-sub">Sāc ar zvanu pārvaldību un pieslēdz sarunu ierakstu vai MI risinājumu tad, kad esi gatavs.</p>
+    <div class="pricing-grid" aria-label="Cena par lietotāju">
+      <article class="price-card">
+        <div class="pc-kicker">Cena (par lietotāju)</div>
+        <h3>Zvanu pārvaldnieks</h3>
+        <p class="pc-desc">Zvanu plūsma un kontrole ikdienas darbam.</p>
+        <div class="pc-price"><span class="val">5<span class="cents">40</span></span><span class="unit">€/mēn.</span></div>
+        <div class="pc-per">par lietotāju · bez PVN</div>
+        <ul class="pc-feats">
+          <li><svg width="14" height="14" viewBox="0 0 12 10" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M1 5.5 4.2 8.5 11 1.5"/></svg>Sarunu statistika</li>
+          <li><svg width="14" height="14" viewBox="0 0 12 10" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M1 5.5 4.2 8.5 11 1.5"/></svg>Zvanu maršrutēšana</li>
+          <li><svg width="14" height="14" viewBox="0 0 12 10" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M1 5.5 4.2 8.5 11 1.5"/></svg>Interaktīvā balss atbilde</li>
+          <li><svg width="14" height="14" viewBox="0 0 12 10" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M1 5.5 4.2 8.5 11 1.5"/></svg>Grupas zvani</li>
+          <li><svg width="14" height="14" viewBox="0 0 12 10" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M1 5.5 4.2 8.5 11 1.5"/></svg>Darba laika kontrole</li>
+        </ul>
+        <a class="btn btn-line pc-cta" href="#cta">Pieteikties</a>
+      </article>
+
+      <article class="price-card">
+        <div class="pc-kicker">Cena (par lietotāju)</div>
+        <h3>Zvanu pārvaldnieks + sarunu ieraksts</h3>
+        <p class="pc-desc">Viss no pamata + drošs zvanu ieraksts.</p>
+        <div class="pc-price"><span class="val">7<span class="cents">00</span></span><span class="unit">€/mēn.</span></div>
+        <div class="pc-per">par lietotāju · bez PVN</div>
+        <ul class="pc-feats">
+          <li><svg width="14" height="14" viewBox="0 0 12 10" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M1 5.5 4.2 8.5 11 1.5"/></svg>Viss no pamata plāna</li>
+          <li class="is-new"><svg width="14" height="14" viewBox="0 0 12 10" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M1 5.5 4.2 8.5 11 1.5"/></svg>Zvana ieraksts</li>
+        </ul>
+        <a class="btn btn-line pc-cta" href="#cta">Pieteikties</a>
+      </article>
+
+      <article class="price-card is-featured">
+        <span class="pc-badge">+ MI</span>
+        <div class="pc-kicker">Cena (par lietotāju)</div>
+        <h3>Zvanu pārvaldnieks + MI risinājums</h3>
+        <p class="pc-desc">Ieraksts, transkripcija un MI kopsavilkumi vienā plānā.</p>
+        <div class="pc-price"><span class="val">14<span class="cents">00</span></span><span class="unit">€/mēn.</span></div>
+        <div class="pc-per">par lietotāju · bez PVN</div>
+        <ul class="pc-feats">
+          <li><svg width="14" height="14" viewBox="0 0 12 10" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M1 5.5 4.2 8.5 11 1.5"/></svg>Viss no ieraksta plāna</li>
+          <li class="is-new"><svg width="14" height="14" viewBox="0 0 12 10" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M1 5.5 4.2 8.5 11 1.5"/></svg>Teksta transkripts</li>
+          <li class="is-new"><svg width="14" height="14" viewBox="0 0 12 10" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M1 5.5 4.2 8.5 11 1.5"/></svg>Teksta kopsavilkums</li>
+          <li class="is-new"><svg width="14" height="14" viewBox="0 0 12 10" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M1 5.5 4.2 8.5 11 1.5"/></svg>MI birkas</li>
+        </ul>
+        <a class="btn btn-white pc-cta" href="#cta">Pieteikties</a>
+      </article>
+    </div>
+    <div class="pr-note">Cenas norādītas bez PVN, par lietotāju. PRO ir atsevišķs papildpakalpojums ar fiksētu maksu — nevis trešais plāns.</div>
+
+    <div class="pro-card">
+      <div>
+        <div class="pro-addon-tag">Papildpakalpojums · jebkuram plānam</div>
+        <h3>Pieslēdz PRO</h3>
+        <p class="pro-p">Izvēloties šo papildpakalpojumu, saņem un organizē zvanus vēl efektīvāk. Fiksēta maksa par neierobežotu lietotāju skaitu.</p>
+      </div>
+      <div class="pro-feats">
+        <div class="pro-feat">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="19 1 23 5 19 9"/><line x1="15" y1="5" x2="23" y2="5"/><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+          Veic zvanu pāradresāciju uz jebkuru numuru, tai skaitā citu operatoru numuriem
+        </div>
+        <div class="pro-feat">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          Piesaisti līdz pat 2 papildu iekārtām (ar SIP protokola atbalstu) katram lietotājam
+        </div>
+      </div>
+      <div class="pro-buy">
+        <div class="val">49<span class="cents">00</span> <small>€/mēn.</small></div>
+        <div class="fix">fiksēta maksa</div>
+        <a class="btn btn-line" href="#cta" style="width:100%">Pieteikties</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SĀKT LIETOT -->
+<section id="sakt" style="padding-top:60px">
+  <div class="fade sec-shell">
+    <div class="sec-label">Uzzināt vairāk</div>
+    <h2 class="sec-title">Sākt lietot ir pavisam vienkārši</h2>
+    <div class="steps5">
+      <div class="step5">
+        <div class="n mono">01</div>
+        <div class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
+        <div class="t">Noslēdz līgumu</div>
+      </div>
+      <div class="step5">
+        <div class="n mono">02</div>
+        <div class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div>
+        <div class="t">Lejupielādē lietotni</div>
+      </div>
+      <div class="step5">
+        <div class="n mono">03</div>
+        <div class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg></div>
+        <div class="t">Pievieno lietotājus</div>
+      </div>
+      <div class="step5">
+        <div class="n mono">04</div>
+        <div class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div>
+        <div class="t">Iestati zvanu plūsmu</div>
+      </div>
+      <div class="step5">
+        <div class="n mono">05</div>
+        <div class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg></div>
+        <div class="t">Sāc pārvaldīt sarunas</div>
+      </div>
+    </div>
+    <div class="steps-after">
+      <p>Pēc līguma noslēgšanas lejupielādē lietotni un izmanto Zvanu pārvaldnieku savā ikdienā viegli un ērti.</p>
+      <div class="store-badges">
+        <a class="store-badge" href="#">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+          <span><span class="sb-l">Lejupielādē</span>App Store</span>
+        </a>
+        <a class="store-badge" href="#">
+          <svg width="15" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M3 20.5V3.5c0-.59.34-1.11.84-1.35L13.69 12l-9.85 9.85c-.5-.25-.84-.76-.84-1.35m13.81-5.38L6.05 21.34l8.49-8.49 2.27 2.27m3.35-4.31c.34.27.59.69.59 1.19s-.22.9-.57 1.18l-2.29 1.32-2.5-2.5 2.5-2.5 2.27 1.31M6.05 2.66l10.76 6.22-2.27 2.27-8.49-8.49z"/></svg>
+          <span><span class="sb-l">Lejupielādē</span>Google Play</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- VADĪBAS SISTĒMA -->
+<section id="vadiba" style="padding-top:60px">
+  <div class="fade sec-shell">
+    <div class="sec-label">Vadības sistēma</div>
+    <h2 class="sec-title">Zvanu pārvaldnieka vadības sistēma</h2>
+    <p class="sec-sub">Viss uzņēmuma zvanu satiksmes centrs vienuviet — no statistikas līdz MI risinājumiem.</p>
+    <div class="admin-wrap">
+      <div class="admin-tabs" id="adminTabs"></div>
+      <div class="admin-pane">
+        <div class="admin-pane-content" id="apContent">
+          <h3 id="apTitle"></h3>
+          <p id="apText"></p>
+        </div>
+        <div class="admin-mock" id="apMock"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq" style="padding-top:60px">
+  <div class="fade sec-shell">
+    <div class="sec-label" style="text-align:center">FAQ</div>
+    <h2 class="sec-title" style="text-align:center">Biežāk uzdotie jautājumi</h2>
+    <div class="faq-wrap" id="faqWrap"></div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta" id="cta">
+  <div class="fade">
+    <h2>Sāc dzirdēt katru sarunu<br><span class="dim">jau šodien</span></h2>
+    <p>Pieslēdz Zvanu pārvaldnieku ar MI transkripciju savam uzņēmumam.</p>
+    <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+      <a class="btn btn-white" href="#">Sazinies ar LMT</a>
+      <a class="btn btn-line" href="#plusma">Apskatīt demo vēlreiz</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <span style="display:inline-flex;align-items:center;gap:12px">
+    <img src="assets/lmt-biznesam-logo-on-dark.svg" alt="LMT biznesam" height="22" style="height:22px;width:auto;display:block;opacity:.9">
+    <span style="border-left:1px solid var(--line-2);padding-left:12px">Zvanu pārvaldnieks</span>
+  </span>
+  <span>Dizaina prototips v5 — award-level polish · dati ir simulēti demonstrācijai</span>
+</footer>
+
+<script>
+/* ---------- winamp art 3D tilt (Mediator mask) ---------- */
+(function(){
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (matchMedia('(hover: none)').matches) return;
+  const wrap = document.querySelector('.winamp-art-stage');
+  const card = document.getElementById('heroVisual');
+  const img = card && card.querySelector('img');
+  if (!wrap || !card) return;
+  let raf = 0, tx = 0, ty = 0, cx = 0, cy = 0, hovering = false;
+  const maxY = 10, maxX = 14;
+  function apply(){
+    raf = 0;
+    cx += (tx - cx) * .14;
+    cy += (ty - cy) * .14;
+    if (!hovering && Math.abs(cx) < .02 && Math.abs(cy) < .02){
+      cx = cy = 0;
+      card.style.transform = '';
+      if (img) img.style.transform = '';
+      card.style.setProperty('--mx', '50%');
+      card.style.setProperty('--my', '40%');
+      return;
+    }
+    card.style.transform =
+      'rotateY(' + (cx * maxX).toFixed(2) + 'deg) rotateX(' + (-cy * maxY).toFixed(2) + 'deg) scale3d(1.02,1.02,1.02)';
+    if (img){
+      img.style.transform =
+        'scale(1.1) translate(' + (cx * -10).toFixed(2) + 'px,' + (cy * -8).toFixed(2) + 'px)';
+    }
+    card.style.setProperty('--mx', ((cx + .5) * 100).toFixed(1) + '%');
+    card.style.setProperty('--my', ((cy + .5) * 100).toFixed(1) + '%');
+    raf = requestAnimationFrame(apply);
+  }
+  function tick(){ if (!raf) raf = requestAnimationFrame(apply); }
+  wrap.addEventListener('mousemove', e=>{
+    if (e.target.closest('#pxBtn')) return;
+    const r = wrap.getBoundingClientRect();
+    tx = (e.clientX - r.left) / r.width - .5;
+    ty = (e.clientY - r.top) / r.height - .5;
+    if (!hovering){
+      hovering = true;
+      card.classList.add('is-tilting');
+    }
+    tick();
+  });
+  wrap.addEventListener('mouseleave', ()=>{
+    hovering = false;
+    tx = 0; ty = 0;
+    card.classList.remove('is-tilting');
+    tick();
+  });
+})();
+
+/* ---------- particles (hero) ---------- */
+(function(){
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const cv = document.getElementById('particles');
+  const hero = document.querySelector('.hero');
+  const ctx = cv.getContext('2d');
+  let W, H, pts = [];
+  function resize(){
+    W = cv.width = hero.offsetWidth;
+    H = cv.height = hero.offsetHeight;
+  }
+  resize(); addEventListener('resize', resize);
+  const N = Math.min(46, Math.floor(W/34));
+  for(let i=0;i<N;i++) pts.push({
+    x: Math.random()*1, y: Math.random()*1,
+    vx: (Math.random()-.5)*.00022, vy: (Math.random()-.5)*.00016,
+    r: .8 + Math.random()*1.6,
+    red: Math.random() < .22
+  });
+  let mx = .5, my = .4;
+  hero.addEventListener('mousemove', e=>{
+    const r = hero.getBoundingClientRect();
+    mx = (e.clientX-r.left)/r.width; my = (e.clientY-r.top)/r.height;
+  });
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    for(const p of pts){
+      p.x += p.vx + (mx-.5)*.00012; p.y += p.vy + (my-.5)*.00009;
+      if(p.x<0)p.x=1; if(p.x>1)p.x=0; if(p.y<0)p.y=1; if(p.y>1)p.y=0;
+    }
+    /* smalkas savienojuma līnijas */
+    ctx.lineWidth = .5;
+    for(let i=0;i<pts.length;i++) for(let j=i+1;j<pts.length;j++){
+      const dx=(pts[i].x-pts[j].x)*W, dy=(pts[i].y-pts[j].y)*H;
+      const d = Math.hypot(dx,dy);
+      if(d < 120){
+        ctx.strokeStyle = 'rgba(255,255,255,'+(.11*(1-d/120)).toFixed(3)+')';
+        ctx.beginPath(); ctx.moveTo(pts[i].x*W, pts[i].y*H); ctx.lineTo(pts[j].x*W, pts[j].y*H); ctx.stroke();
+      }
+    }
+    for(const p of pts){
+      ctx.fillStyle = p.red ? 'rgba(200,16,46,.65)' : 'rgba(255,255,255,.4)';
+      ctx.beginPath(); ctx.arc(p.x*W, p.y*H, p.r, 0, 7); ctx.fill();
+    }
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+/* ---------- PRO interactive gradient (smooth lerp + idle drift) ---------- */
+(function(){
+  const pro = document.querySelector('.pro-card');
+  if(!pro) return;
+  let tx = 18, ty = 30, cx = 18, cy = 30, hovering = false;
+  pro.addEventListener('mousemove', e=>{
+    const r = pro.getBoundingClientRect();
+    tx = (e.clientX-r.left)/r.width*100;
+    ty = (e.clientY-r.top)/r.height*100;
+    hovering = true;
+  });
+  pro.addEventListener('mouseleave', ()=>{ hovering = false; });
+  (function loop(t){
+    if(!hovering){
+      /* mierīga dreifēšana, kad kursors nav virsū */
+      tx = 50 + 34*Math.sin(t/3200);
+      ty = 42 + 26*Math.sin(t/2300 + 1.4);
+    }
+    cx += (tx-cx)*.065;
+    cy += (ty-cy)*.065;
+    pro.style.setProperty('--mx', cx+'%');
+    pro.style.setProperty('--my', cy+'%');
+    requestAnimationFrame(loop);
+  })(0);
+})();
+
+/* ---------- scroll progress + nav ---------- */
+const sp = document.getElementById('scrollProgress');
+const navEl = document.querySelector('nav');
+function onScrollUI(){
+  const h = document.documentElement;
+  const y = h.scrollTop || document.body.scrollTop;
+  sp.style.width = (y/(h.scrollHeight-h.clientHeight)*100)+'%';
+  navEl.classList.toggle('scrolled', y > 12);
+}
+addEventListener('scroll', onScrollUI, {passive:true});
+onScrollUI();
+
+/* ---------- mobile nav drawer ---------- */
+(function(){
+  const toggle = document.getElementById('navToggle');
+  const drawer = document.getElementById('navDrawer');
+  const backdrop = document.getElementById('navBackdrop');
+  if(!toggle || !drawer || !backdrop) return;
+  let open = false;
+  function setOpen(v){
+    open = v;
+    toggle.setAttribute('aria-expanded', v ? 'true' : 'false');
+    drawer.classList.toggle('open', v);
+    backdrop.classList.toggle('open', v);
+    drawer.hidden = false;
+    backdrop.hidden = false;
+    if(!v){
+      /* keep in DOM for exit transition, then hide */
+      setTimeout(()=>{
+        if(!open){ drawer.hidden = true; backdrop.hidden = true; }
+      }, 320);
+    }
+    document.body.classList.toggle('nav-open', v);
+  }
+  toggle.addEventListener('click', ()=> setOpen(!open));
+  backdrop.addEventListener('click', ()=> setOpen(false));
+  drawer.querySelectorAll('a').forEach(a=>{
+    a.addEventListener('click', ()=> setOpen(false));
+  });
+  addEventListener('keydown', e=>{
+    if(e.key === 'Escape' && open) setOpen(false);
+  });
+  addEventListener('resize', ()=>{
+    if(open && matchMedia('(min-width:1061px)').matches) setOpen(false);
+  });
+})();
+
+/* ---------- call player (live word-by-word transcript) ---------- */
+const DUR = 15;
+const scrub = document.getElementById('scrub');
+const scrubWave = document.getElementById('scrubWave');
+const pxBtn = document.getElementById('pxBtn');
+const pxState = document.getElementById('pxState');
+const tCur = document.getElementById('tCur');
+const pxLines = [...document.querySelectorAll('.px-line')];
+const pxSum = document.getElementById('pxSum');
+const NB = 96; /* fewer bars so waveform never overflows deck width */
+const baseH = [];
+for(let i=0;i<NB;i++){
+  const el = document.createElement('i');
+  const u = i*72/NB;
+  const env = .55 + .45*Math.sin(i/NB*Math.PI);
+  const h = Math.min(92, 12 + env*(30*Math.abs(Math.sin(u*.42)) + 26*Math.abs(Math.sin(u*.17+1.3)) + 14*Math.abs(Math.sin(u*.83+.5))));
+  baseH.push(h);
+  el.style.height = h+'%';
+  scrubWave.appendChild(el);
+}
+const wBars2 = [...scrubWave.children];
+const scrubWrap = document.getElementById('scrubWrap');
+const scrubNeedle = document.getElementById('scrubNeedle');
+let pxPlaying = false, pxProg = 0, pxRaf;
+function fmt(s){ return Math.floor(s/60)+':'+String(Math.floor(s%60)).padStart(2,'0'); }
+const winampEl = document.querySelector('.winamp');
+
+/* Split each line into words; progress reveals them live while speaking */
+function tokenizeLiveLine(tEl){
+  const tokens = [];
+  (function walk(node, inHl){
+    if(node.nodeType === 3){
+      const parts = node.textContent.split(/(\s+)/);
+      parts.forEach(p=>{
+        if(!p) return;
+        tokens.push({ text:p, hl:inHl, space:/^\s+$/.test(p) });
+      });
+    } else if(node.nodeType === 1){
+      const hl = inHl || node.classList.contains('hl');
+      [...node.childNodes].forEach(c=> walk(c, hl));
+    }
+  })(tEl, false);
+  tEl.textContent = '';
+  const wordEls = [];
+  tokens.forEach(tok=>{
+    if(tok.space){
+      tEl.appendChild(document.createTextNode(tok.text));
+      return;
+    }
+    const sp = document.createElement('span');
+    sp.className = 'px-word' + (tok.hl ? ' hl' : '');
+    sp.textContent = tok.text;
+    tEl.appendChild(sp);
+    wordEls.push(sp);
+  });
+  const caret = document.createElement('span');
+  caret.className = 'px-caret off';
+  caret.setAttribute('aria-hidden','true');
+  return { wordEls, caret, tEl };
+}
+
+pxLines.forEach((line, i)=>{
+  const tEl = line.querySelector('.t');
+  const start = +line.dataset.at;
+  const end = i < pxLines.length - 1
+    ? +pxLines[i+1].dataset.at
+    : +pxSum.dataset.at;
+  const { wordEls, caret } = tokenizeLiveLine(tEl);
+  line._start = start;
+  line._end = end;
+  line._words = wordEls;
+  line._caret = caret;
+  line._tEl = tEl;
+});
+
+function pxRevealWords(line, at, playing){
+  const words = line._words || [];
+  const n = words.length;
+  if(!n) return;
+  const span = Math.max(1, line._end - line._start);
+  /* use ~88% of the line window to speak; rest is a short pause */
+  const local = (at - line._start) / span;
+  const speak = Math.min(1, Math.max(0, local / 0.88));
+  const shown = at < line._start ? 0
+    : (at >= line._end ? n
+    : Math.min(n, Math.max(0, Math.ceil(speak * n - 1e-9))));
+  words.forEach((w,i)=> w.classList.toggle('vis', i < shown));
+
+  /* full sentence complete → mark key phrases */
+  const done = shown >= n && at >= line._start;
+  line.classList.toggle('is-done', done);
+
+  /* caret sits right after the last visible word */
+  const caret = line._caret;
+  if(!caret) return;
+  const live = playing && shown > 0 && shown < n && at >= line._start && at < line._end;
+  if(live){
+    const last = words[shown - 1];
+    if(last && caret.previousElementSibling !== last){
+      last.insertAdjacentElement('afterend', caret);
+    }
+    caret.classList.remove('off');
+  } else {
+    caret.classList.add('off');
+  }
+}
+
+function pxRender(){
+  const pct = pxProg/1000;
+  const head = pct*NB;
+  const t = performance.now()/1000;
+  wBars2.forEach((b,i)=>{
+    b.classList.toggle('past', i/NB <= pct);
+    if(pxPlaying && Math.abs(i-head) < 3.5){
+      const boost = 1 + .45*(1-Math.abs(i-head)/3.5)*Math.abs(Math.sin(t*7+i));
+      b.style.height = Math.min(96, baseH[i]*boost)+'%';
+    } else {
+      b.style.height = baseH[i]+'%';
+    }
+  });
+  scrubNeedle.style.left = (pct*100)+'%';
+  scrubWrap.classList.toggle('active', pxProg > 0 && pxProg < 1000);
+  tCur.textContent = fmt(pct*DUR);
+  const at = pct*100;
+  let anyLine = false;
+  pxLines.forEach(l=>{
+    const on = at >= l._start;
+    l.classList.toggle('on', on);
+    pxRevealWords(l, at, pxPlaying);
+    if(on) anyLine = true;
+  });
+  pxSum.classList.toggle('on', at >= +pxSum.dataset.at);
+  if(at >= +pxSum.dataset.at) anyLine = true;
+  if(winampEl) winampEl.classList.toggle('has-transcript', anyLine || pxProg > 40);
+  scrub.value = pxProg;
+}
+function pxTick(){
+  if(!pxPlaying) return;
+  pxProg = Math.min(1000, pxProg + 1000/(DUR*60));
+  pxRender();
+  if(pxProg >= 1000){ pxSetPlaying(false); pxState.textContent = 'Pabeigts'; return; }
+  pxRaf = requestAnimationFrame(pxTick);
+}
+function pxSetPlaying(p){
+  pxPlaying = p;
+  pxBtn.classList.toggle('is-playing', p);
+  if(winampEl) winampEl.classList.toggle('is-playing', p);
+  pxBtn.innerHTML = p
+    ? '<svg width="14" height="16" viewBox="0 0 12 14" fill="currentColor"><rect width="4" height="14"/><rect x="8" width="4" height="14"/></svg>'
+    : '<svg width="16" height="18" viewBox="0 0 12 14" fill="currentColor"><path d="M0 0l12 7-12 7z"/></svg>';
+  pxBtn.setAttribute('aria-label', p ? 'Pauzēt' : 'Atskaņot');
+  pxState.textContent = p ? 'Atskaņo' : (pxProg>0 && pxProg<1000 ? 'Pauze' : 'Gatavs');
+  pxState.classList.toggle('rec', p);
+  if(p){ if(pxProg>=1000) pxProg = 0; pxRaf = requestAnimationFrame(pxTick); }
+  else cancelAnimationFrame(pxRaf);
+  pxRender();
+}
+pxBtn.addEventListener('click', ()=> pxSetPlaying(!pxPlaying));
+scrub.addEventListener('input', ()=>{ pxProg = +scrub.value; pxRender(); if(!pxPlaying) pxState.textContent = 'Pārtīts'; });
+pxRender();
+
+/* ---------- admin tabs ---------- */
+const ADMIN = [
+  {k:'MI risinājumi', isNew:true, t:'MI risinājumi', p:'Automātiski veido sarunu pierakstus un apstrādā tekstus — transkripti, kopsavilkumi un MI birkas katram zvanam, gatavi tālākai analīzei.', mock:'ai'},
+  {k:'Statistika', t:'Statistika', p:'Aplūko informāciju par saņemtajiem un veiktajiem zvaniem dažādos aspektos — informācija pieejama grafikos, kā arī to vari lejupielādēt Excel failā.', mock:'chart'},
+  {k:'Numura izvēle', t:'Numura izvēle', p:'Izvēlies, kurš numurs tiek attēlots zvana saņēmējam — uzņēmuma galvenais, nodaļas vai personīgais darba numurs.', mock:'numbers'},
+  {k:'IVR', t:'Interaktīvā balss atbilde', p:'Izveido balss izvēlni, kas automātiski novirza zvanītāju pie pareizā kolēģa vai nodaļas — bez telefonista.', mock:'ivr'},
+  {k:'Sarunu ieraksts', t:'Sarunu ieraksts', p:'Ieraksti sarunas drošai uzskaitei un kvalitātes kontrolei. Dati tiek apstrādāti un glabāti Latvijā.', mock:'rec'},
+  {k:'Laika kontrole', t:'Darba laika kontrole', p:'Nosaki darba laikus katram numuram — ārpus tiem zvani nonāk balss pastā vai pie pieejamā kolēģa.', mock:'time'},
+  {k:'Grupas zvani', t:'Grupas zvani', p:'Sadali ienākošos zvanus starp komandas locekļiem — neviens klients negaida rindā, ja ir brīvs kolēģis.', mock:'group'},
+  {k:'Balss pasts', t:'Balss pasts', p:'Pielāgota balss ziņa atvaļinājuma laikā vai ārpus darba laika — klients vienmēr zina, kad atzvanīsi.', mock:'vm'},
+  {k:'Pāradresācija', t:'Pāradresācija', p:'Veic zvanu pāradresāciju uz jebkuru numuru, tai skaitā citu operatoru numuriem.', mock:'fwd'},
+  {k:'API', t:'API', p:'Savieno Zvanu pārvaldnieku ar savām sistēmām — CRM, palīdzības dienestu vai pašu būvētiem rīkiem.', mock:'code'}
+];
+const adminTabs = document.getElementById('adminTabs');
+const apTitle = document.getElementById('apTitle');
+const apText = document.getElementById('apText');
+const apMock = document.getElementById('apMock');
+function mockHtml(kind){
+  const bar = '<div class="mini-bar"><i></i><i></i><i></i></div>';
+  const rowD = i => ' style="animation-delay:'+(0.08+i*0.12)+'s"';
+  if(kind==='chart'){
+    const hs = [35,55,42,70,58,88,64,76,49,92,68,81];
+    return bar + '<div class="m-label">Zvani pa dienām</div><div class="chart-bars">' +
+      hs.map((h,i)=>'<i style="height:'+h+'%;animation-delay:'+(i*0.05)+'s" class="'+(i===9?'hl':'')+'"></i>').join('') + '</div>';
+  }
+  if(kind==='ai'){
+    return bar + '<div class="m-label">Pēdējais zvans · MI apstrāde</div><div class="mock-rows">'
+      + '<div class="m-sync"'+rowD(0)+'>Transkripts izveidots<span class="s-ok">✓</span></div>'
+      + '<div class="m-sync"'+rowD(1)+'>Kopsavilkums: 3 punkti<span class="s-ok">✓</span></div>'
+      + '<div class="m-sync"'+rowD(2)+'>Birkas: piegāde · atzvanīt · #4821<span class="s-ok">✓</span></div></div>';
+  }
+  if(kind==='numbers'){
+    return bar + '<div class="m-label">Zvana saņēmējam rādīt</div><div class="mock-rows">'
+      + '<div class="m-sync"'+rowD(0)+'><span style="width:8px;height:8px;border-radius:50%;background:var(--red);flex:none"></span>+371 6777 0000 · Uzņēmuma galvenais<span class="s-ok">Izvēlēts</span></div>'
+      + '<div class="m-sync"'+rowD(1)+'><span style="width:8px;height:8px;border-radius:50%;border:1px solid rgba(255,255,255,.25);flex:none"></span>+371 6777 0021 · Serviss</div>'
+      + '<div class="m-sync"'+rowD(2)+'><span style="width:8px;height:8px;border-radius:50%;border:1px solid rgba(255,255,255,.25);flex:none"></span>+371 29 ••• ••• · Personīgais</div></div>';
+  }
+  if(kind==='ivr'){
+    const key = k => '<span class="mono" style="width:22px;height:22px;border:1px solid var(--line-2);border-radius:5px;display:inline-grid;place-items:center;font-size:11px;flex:none">'+k+'</span>';
+    return bar + '<div class="m-label">“Labdien! Nospiediet…”</div><div class="mock-rows">'
+      + '<div class="m-sync"'+rowD(0)+'>'+key(1)+'Klientu serviss<span class="s-ok">→</span></div>'
+      + '<div class="m-sync"'+rowD(1)+'>'+key(2)+'Pārdošana<span class="s-ok">→</span></div>'
+      + '<div class="m-sync"'+rowD(2)+'>'+key(3)+'Grāmatvedība<span class="s-ok">→</span></div></div>';
+  }
+  if(kind==='rec'){
+    return bar + '<div class="m-label">Notiekošais zvans</div>'
+      + '<div style="display:flex;align-items:center;gap:12px;border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-top:4px">'
+      + '<span class="m-pill rec">IERAKSTS</span><div class="mock-wave-line" id="recWave"></div><span class="mono" style="font-size:11px;color:var(--dim-2)">03:12</span></div>'
+      + '<div class="mock-rows" style="margin-top:12px"><div class="m-sync"'+rowD(0)+'>Glabāšana: Latvija · GDPR<span class="s-ok">✓</span></div></div>';
+  }
+  if(kind==='time'){
+    return bar + '<div class="m-label">Darba laiks · piektdiena</div>'
+      + '<div class="mock-timeline"><i></i></div>'
+      + '<div class="mock-tl-labels"><span>7:00</span><span>12:00</span><span>17:00</span><span>22:00</span></div>'
+      + '<div class="mock-rows" style="margin-top:14px"><div class="m-sync"'+rowD(0)+'>Ārpus laika → balss pasts<span class="s-ok">Aktīvs</span></div></div>';
+  }
+  if(kind==='group'){
+    return bar + '<div class="m-label">Ienākošais zvans · Serviss</div><div class="mock-avatars">'
+      + '<span class="mock-ava ringing">AK</span><span class="mock-ava">LB</span><span class="mock-ava">MZ</span><span class="mock-ava">+2</span>'
+      + '<span style="font-size:12px;color:var(--red-soft);margin-left:6px">zvana…</span></div>'
+      + '<div class="mock-rows" style="margin-top:10px"><div class="m-sync"'+rowD(0)+'>Ja neatbild 15 s → nākamais kolēģis<span class="s-ok">Aktīvs</span></div></div>';
+  }
+  if(kind==='vm'){
+    const play = '<span style="width:26px;height:26px;border-radius:50%;border:1px solid var(--line-2);display:inline-grid;place-items:center;flex:none"><svg width="8" height="10" viewBox="0 0 10 12" fill="currentColor"><path d="M0 0l10 6-10 6z"/></svg></span>';
+    return bar + '<div class="m-label">Jaunas balss ziņas (2)</div><div class="mock-rows">'
+      + '<div class="m-sync"'+rowD(0)+'>'+play+'Jānis K. · vakar 17:42<span class="s-ok">0:36</span></div>'
+      + '<div class="m-sync"'+rowD(1)+'>'+play+'+371 26 ••• ··· · šodien 8:15<span class="s-ok">0:12</span></div></div>';
+  }
+  if(kind==='fwd'){
+    return bar + '<div class="m-label">Aktīvā pāradresācija</div>'
+      + '<div class="fwd-diagram"><span class="fwd-node">+371 6777 0000</span><span class="fwd-line"></span><span class="fwd-node to">+371 29 ••• •••</span></div>'
+      + '<div class="mock-rows"><div class="m-sync"'+rowD(0)+'>Darbojas arī uz citu operatoru numuriem<span class="s-ok">✓</span></div></div>';
+  }
+  if(kind==='code'){
+    return bar + '<div class="m-label">GET /api/v1/calls</div><div class="mono" style="font-size:11.5px;line-height:1.7;color:rgba(255,255,255,.55)">{<br>&nbsp;&nbsp;"caller": "+371 29•••",<br>&nbsp;&nbsp;"duration": 42,<br>&nbsp;&nbsp;"summary": "Piegāde → 24.07.",<br>&nbsp;&nbsp;"tags": ["piegāde", "atzvanīt"]<span class="type-caret"></span><br>}</div>';
+  }
+  return bar;
+}
+let recWaveInt = null;
+function setAdmin(i){
+  [...adminTabs.children].forEach((b,k)=>b.classList.toggle('on', k===i));
+  const a = ADMIN[i];
+  apTitle.innerHTML = a.t + (a.isNew ? ' <span class="badge">Jaunais pakalpojums</span>' : '');
+  apText.textContent = a.p;
+  apMock.innerHTML = mockHtml(a.mock);
+  const ct = document.getElementById('apContent');
+  [ct, apMock].forEach(el=>{ el.classList.remove('anim'); void el.offsetWidth; el.classList.add('anim'); });
+  clearInterval(recWaveInt);
+  const rw = document.getElementById('recWave');
+  if(rw){
+    for(let k=0;k<24;k++) rw.appendChild(document.createElement('i'));
+    const bars = [...rw.children]; let t0 = 0;
+    recWaveInt = setInterval(()=>{
+      t0 += .25;
+      bars.forEach((b,k)=> b.style.height = (22 + Math.abs(Math.sin(t0 + k*.6))*62) + '%');
+    }, 90);
+  }
+}
+ADMIN.forEach((a,i)=>{
+  const b = document.createElement('button');
+  b.className = 'atab';
+  b.innerHTML = (a.isNew ? '<span class="new-dot"></span>' : '') + a.k;
+  b.addEventListener('click', ()=>setAdmin(i));
+  adminTabs.appendChild(b);
+});
+setAdmin(0);
+
+/* ---------- FAQ ---------- */
+const FAQS = [
+  {q:'Vai transkripcija strādā latviešu valodā?', a:'Jā — sarunas tiek automātiski pārrakstītas tekstā latviešu valodā, arī tad, ja runā ātri vai sarunvalodā. Katrs vārds kļūst meklējams.'},
+  {q:'Kur tiek glabāti un apstrādāti sarunu dati?', a:'Visi dati tiek apstrādāti un glabāti Latvijā, atbilstoši GDPR prasībām. Sarunu ieraksti un transkripti ir pieejami tikai tavam uzņēmumam.'},
+  {q:'Vai klients zina, ka saruna tiek ierakstīta?', a:'Jā — zvana sākumā zvanītājs saņem paziņojumu par sarunas ierakstīšanu, kā to paredz normatīvie akti.'},
+  {q:'Vai varu pieslēgt MI risinājumu jau esošam Zvanu pārvaldniekam?', a:'Jā — MI transkripcija un kopsavilkumi ir papildinājums, ko vari pieslēgt jebkurā brīdī. Esošie iestatījumi un zvanu plūsma nemainās.'},
+  {q:'Kā kopsavilkumi nonāk CRM sistēmā?', a:'Kopsavilkumu ir iespējams pievienot CRM sistēmā — klienta kartītē kopā ar uzdevumiem atbildīgajiem. Pieejama arī API integrācija ar citām sistēmām.'},
+  {q:'Cik ātri pēc zvana ir gatavs kopsavilkums?', a:'Transkripts top sarunas laikā, un MI kopsavilkums ir gatavs mazāk nekā 30 sekundēs pēc zvana beigām.'}
+];
+const faqWrap = document.getElementById('faqWrap');
+FAQS.forEach(f=>{
+  const d = document.createElement('div');
+  d.className = 'faq';
+  d.innerHTML = '<button class="faq-q">'+f.q+'<span class="pl"></span></button>'
+    + '<div class="faq-a"><div class="faq-a-inner">'+f.a+'</div></div>';
+  d.querySelector('.faq-q').addEventListener('click', ()=>{
+    const wasOpen = d.classList.contains('open');
+    [...faqWrap.children].forEach(x=>{
+      x.classList.remove('open');
+      x.querySelector('.faq-a').style.maxHeight = '0';
+    });
+    if(!wasOpen){
+      d.classList.add('open');
+      const a = d.querySelector('.faq-a');
+      a.style.maxHeight = a.scrollHeight + 'px';
+    }
+  });
+  faqWrap.appendChild(d);
+});
+
+/* ---------- scroll fade (x.ai style) ---------- */
+const io = new IntersectionObserver(es=>es.forEach(e=>{
+  if(e.isIntersecting){ e.target.classList.add('vis'); io.unobserve(e.target); }
+}),{threshold:.18, rootMargin:'0px 0px -40px 0px'});
+document.querySelectorAll('.fade').forEach(el=>io.observe(el));
+
+/* ---------- flow cards demo (sync loop) ---------- */
+const miniWave = document.getElementById('miniWave');
+for(let i=0;i<34;i++) miniWave.appendChild(document.createElement('i'));
+const mBars = [...miniWave.children];
+const callSec = document.getElementById('callSec');
+const T1 = 'Labdien! Vai piegādi var pārcelt uz piektdienu?';
+const T2 = 'Varam — atzvanīšu līdz 16:00 ar apstiprinājumu.';
+const FEATHER = {
+  calendar:'<rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>',
+  phone:'<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>',
+  mappin:'<path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>'
+};
+function fIco(name, color){
+  return '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="'+(color||'#8A8A8A')+'" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none;margin-top:2px">'+FEATHER[name]+'</svg>';
+}
+const SUM = [
+  {i:'calendar', t:'Piegāde pārcelta uz piektdienu, 24.07.'},
+  {i:'phone', t:'Atzvanīt klientam līdz plkst. 16:00'},
+  {i:'mappin', t:'Atjaunot adresi pasūtījumam #4821'}
+];
+const tLine1 = document.getElementById('tLine1');
+const tLine2 = document.getElementById('tLine2');
+const sumChecks = document.getElementById('sumChecks');
+const syncPill = document.getElementById('syncPill');
+let flowTimers = [];
+function clearFlow(){ flowTimers.forEach(clearTimeout); flowTimers = []; }
+function typeInto(el, text, done){
+  let i = 0;
+  (function tick(){
+    el.innerHTML = text.slice(0, ++i) + (i < text.length ? '<span class="caret"></span>' : '');
+    if(i < text.length) flowTimers.push(setTimeout(tick, 34));
+    else if(done) flowTimers.push(setTimeout(done, 350));
+  })();
+}
+let waveInt, secInt, sec = 0;
+function flowLoop(){
+  clearFlow(); clearInterval(waveInt); clearInterval(secInt);
+  tLine1.textContent = ''; tLine2.textContent = '';
+  sumChecks.innerHTML = ''; syncPill.style.opacity = 0; sec = 0;
+  let wt = 0;
+  waveInt = setInterval(()=>{
+    wt += .24;
+    mBars.forEach((b,k)=> b.style.height = (14 + Math.abs(Math.sin(wt + k*.52))*(58 + 20*Math.sin(k*.23)))+'%');
+  }, 80);
+  secInt = setInterval(()=>{ sec++; callSec.textContent = String(sec).padStart(2,'0'); },1000);
+  typeInto(tLine1, T1, ()=> typeInto(tLine2, T2, ()=>{
+    clearInterval(waveInt); clearInterval(secInt);
+    mBars.forEach(b=>b.style.height='14%');
+    SUM.forEach((s,i)=> flowTimers.push(setTimeout(()=>{
+      const d = document.createElement('div');
+      d.className = 'm-check';
+      d.innerHTML = fIco(s.i, '#B8B8B8') + s.t;
+      sumChecks.appendChild(d);
+    }, 400 + i*550)));
+    flowTimers.push(setTimeout(()=>{ syncPill.style.opacity = 1; }, 400 + SUM.length*550 + 500));
+    flowTimers.push(setTimeout(flowLoop, 400 + SUM.length*550 + 4200));
+  }));
+}
+new IntersectionObserver(es=>{
+  if(es[0].isIntersecting){ flowLoop(); }
+  else { clearFlow(); clearInterval(waveInt); clearInterval(secInt); }
+},{threshold:.3}).observe(document.getElementById('plusma'));
+
+/* ---------- conversation examples ---------- */
+const CONVOS = [
+  {steps:[
+    {who:'Klients', said:'Labdien! Vai varētu <span class="hl">piegādi pārcelt uz piektdienu</span>? Ceturtdien nebūšu mājās.'},
+    {who:'Darbinieks', said:'Protams. <span class="hl">Atzvanīšu līdz plkst. 16:00</span> ar apstiprinājumu no noliktavas.'}
+  ], ai:'Uzdevums: atzvanīt līdz 16:00 · Piegādes datums nomainīts uz 24.07.'},
+  {steps:[
+    {who:'Klients', said:'Sveiki! Interesē <span class="hl">interneta pieslēgums birojam</span> — kādi ir nosacījumi?'},
+    {who:'Darbinieks', said:'Piedāvāšu biznesa tarifu — <span class="hl">nosūtīšu piedāvājumu šodien</span> un sagatavošu līgumu.'}
+  ], ai:'Solījums: nosūtīt piedāvājumu šodien · Darījums pievienots CRM piltuvei.'}
+];
+const cvOut = document.getElementById('cvOut');
+const cvs = [...document.querySelectorAll('.cv')];
+cvs.forEach(cv=>{
+  const w = cv.querySelector('.cv-wave');
+  for(let i=0;i<22;i++) w.appendChild(document.createElement('i'));
+});
+let cvTimers = [], cvWaveInt, activeCv = null;
+function stopCv(){
+  cvTimers.forEach(clearTimeout); cvTimers = []; clearInterval(cvWaveInt);
+  cvs.forEach(c=>{
+    c.classList.remove('on');
+    [...c.querySelectorAll('.cv-wave i')].forEach(b=>{b.style.height='18%';b.style.background='rgba(255,255,255,.16)';});
+    c.querySelector('.play').innerHTML = '<svg width="10" height="12" viewBox="0 0 10 12" fill="currentColor"><path d="M0 0l10 6-10 6z"/></svg>';
+  });
+  activeCv = null;
+}
+cvs.forEach(cv=>cv.addEventListener('click', ()=>{
+  const i = +cv.dataset.i;
+  if(activeCv === i){ stopCv(); return; }
+  stopCv(); activeCv = i;
+  cv.classList.add('on');
+  cv.querySelector('.play').innerHTML = '<svg width="10" height="12" viewBox="0 0 10 12" fill="currentColor"><rect x="0" y="0" width="3.4" height="12"/><rect x="6.6" y="0" width="3.4" height="12"/></svg>';
+  const bars = [...cv.querySelectorAll('.cv-wave i')];
+  cvWaveInt = setInterval(()=>bars.forEach(b=>{
+    b.style.height = (14+Math.random()*70)+'%'; /* stay inside 22px row */
+    b.style.background = 'rgba(255,255,255,.45)';
+  }),140);
+  const c = CONVOS[i];
+  cvOut.innerHTML = '';
+  c.steps.forEach((s,k)=>cvTimers.push(setTimeout(()=>{
+    cvOut.innerHTML += '<div class="who">'+s.who+'</div><div class="said">'+s.said+'</div>';
+  }, 300 + k*1800)));
+  cvTimers.push(setTimeout(()=>{
+    cvOut.innerHTML += '<div class="ai-line"><span class="ai-chip">MI</span><span>'+c.ai+'</span></div>';
+    stopCv();
+  }, 300 + c.steps.length*1800 + 600));
+}));
+</script>
+<script>
+/**
+ * AI field — sharp white pixel nodes + sparse energy + meridian ring.
+ * Cursor tracked across the whole viewport while the section is visible.
+ */
+const mount = document.getElementById('ai3d');
+const root = document.getElementById('orbVisual');
+const section = document.getElementById('dzirdi') || root;
+if (mount && root) {
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const bubbles = [...root.querySelectorAll('.bubble')];
+  let bubbleTimers = [];
+  let seqOn = false;
+  let energy = 0.18, energyT = 0.18;
+  let visible = false;
+  let raf = 0;
+
+  function clearBubbleTimers(){ bubbleTimers.forEach(clearTimeout); bubbleTimers = []; }
+  function setEnergy(v){ energyT = v; }
+  function showBubbles(){
+    clearBubbleTimers();
+    bubbles.forEach(b => b.classList.remove('show'));
+    setEnergy(0.45);
+    [0, 1700, 3600].forEach((g, i) => {
+      bubbleTimers.push(setTimeout(() => bubbles[i]?.classList.add('show'), g));
+    });
+    bubbleTimers.push(setTimeout(() => setEnergy(0.22), 5400));
+    bubbleTimers.push(setTimeout(() => {
+      bubbles.forEach(b => b.classList.remove('show'));
+      setEnergy(0.18);
+    }, 8000));
+    bubbleTimers.push(setTimeout(() => { if (seqOn) showBubbles(); }, 10200));
+  }
+  function stopSeq(){
+    seqOn = false;
+    clearBubbleTimers();
+    bubbles.forEach(b => b.classList.remove('show'));
+    setEnergy(0.18);
+  }
+  function startSeq(){
+    if (seqOn) return;
+    seqOn = true;
+    if (!reduced) showBubbles();
+    else {
+      bubbles.forEach(b => b.classList.add('show'));
+      setEnergy(0.25);
+    }
+  }
+
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d', { alpha: true });
+  canvas.style.cssText = 'display:block;width:100%;height:100%';
+  mount.appendChild(canvas);
+
+  const COUNT = 90;
+  const RADIUS = 1.0;
+  const LINK_DIST = 0.46;
+  const MAX_LINKS = 180;
+  const RING_N = 96;
+
+  const base = new Float32Array(COUNT * 3);
+  const pos = new Float32Array(COUNT * 3);
+  const phase = new Float32Array(COUNT);
+  const speed = new Float32Array(COUNT);
+  const heat = new Float32Array(COUNT);
+  const scrX = new Float32Array(COUNT);
+  const scrY = new Float32Array(COUNT);
+  const scrZ = new Float32Array(COUNT);
+  const alive = new Uint8Array(COUNT);
+
+  const golden = Math.PI * (3 - Math.sqrt(5));
+  for (let i = 0; i < COUNT; i++) {
+    const y = 1 - (i / (COUNT - 1)) * 2;
+    const r = Math.sqrt(Math.max(0, 1 - y * y));
+    const th = golden * i;
+    const rad = RADIUS * (0.42 + Math.random() * 0.55);
+    const x = Math.cos(th) * r * rad;
+    const z = Math.sin(th) * r * rad;
+    const yy = y * rad;
+    base[i * 3] = x; base[i * 3 + 1] = yy; base[i * 3 + 2] = z;
+    pos[i * 3] = x; pos[i * 3 + 1] = yy; pos[i * 3 + 2] = z;
+    phase[i] = Math.random() * Math.PI * 2;
+    speed[i] = 0.25 + Math.random() * 0.4;
+    heat[i] = 0;
+  }
+
+  /* sparse ambient energy — only 2 quiet pulses */
+  const pulses = [
+    { i: 11, t: 0, along: 0, j: 28 },
+    { i: 47, t: 0.5, along: 0, j: 63 }
+  ];
+
+  let dpr = 1, W = 1, H = 1, cssW = 1, cssH = 1;
+  let cx = 0.5, cy = 0.5, scale = 120;
+  /* heavy mass — no spring, no snap-back home */
+  let rotX = 0.12, rotY = 0.15;
+  let velX = 0, velY = 0;
+  let aimX = 0.12, aimY = 0.15; /* look aim; freezes on leave, never resets to 0 */
+  let hoverT = 0, hoverS = 0;
+  let ptrX = 0, ptrY = 0, sPtrX = 0, sPtrY = 0;
+  let dragging = false;
+  let lastPX = 0, lastPY = 0;
+  let t0 = performance.now();
+
+  const LAG = 0.028;       /* first-order lag toward aim (heavy follow, no overshoot) */
+  const FRICTION = 0.965;  /* coast after fling */
+  const DRAG_IMP = 0.00115;/* pointer delta → angular velocity while dragging */
+  const DRAG_FRIC = 0.82;  /* resistance while hand is on it */
+  const PITCH_MAX = 0.95;
+
+  function resize() {
+    /* size canvas to whole visual column so ring/points aren't frame-cropped */
+    const host = root;
+    const rect = host.getBoundingClientRect();
+    cssW = Math.max(1, rect.width);
+    cssH = Math.max(1, rect.height || 520);
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    W = Math.max(1, Math.round(cssW * dpr));
+    H = Math.max(1, Math.round(cssH * dpr));
+    canvas.width = W;
+    canvas.height = H;
+    cx = W * 0.5;
+    cy = H * 0.5;
+    /* large cloud, still fully inside canvas (margin ~12%) */
+    scale = Math.min(W, H) * 0.42;
+  }
+  resize();
+  new ResizeObserver(resize).observe(root);
+
+  function nodePix() {
+    return Math.max(2, Math.round(2.25 * dpr));
+  }
+
+  function clampPitch(v) {
+    return Math.max(-PITCH_MAX, Math.min(PITCH_MAX, v));
+  }
+
+  /* cursor across viewport; drag = heavy mass with lag */
+  function updatePointerFromEvent(e) {
+    const mr = mount.getBoundingClientRect();
+    const mx = mr.left + mr.width * 0.5;
+    const my = mr.top + mr.height * 0.5;
+    const nx = (e.clientX - mx) / (window.innerWidth * 0.5);
+    const ny = -((e.clientY - my) / (window.innerHeight * 0.5));
+    ptrX = Math.max(-2, Math.min(2, nx));
+    ptrY = Math.max(-2, Math.min(2, ny));
+    hoverT = 1;
+
+    if (dragging) {
+      const dx = e.clientX - lastPX;
+      const dy = e.clientY - lastPY;
+      lastPX = e.clientX;
+      lastPY = e.clientY;
+      /* impulse into velocity — trails the hand like a heavy ball */
+      velY += dx * DRAG_IMP;
+      velX += dy * DRAG_IMP * 0.88;
+      /* aim rides with mass so look-at won't yank back after release */
+      aimY = rotY;
+      aimX = rotX;
+    } else {
+      /* slow absolute look — aim only; mass lags in frame loop */
+      aimY = ptrX * 0.42;
+      aimX = clampPitch(0.08 + ptrY * 0.28);
+    }
+  }
+
+  function onWinMove(e) {
+    if (!visible) return;
+    updatePointerFromEvent(e);
+  }
+  function onWinLeave() {
+    if (dragging) return;
+    hoverT = 0;
+    /* freeze where it is — do NOT snap home */
+    aimX = rotX;
+    aimY = rotY;
+  }
+  function onDown(e) {
+    if (!visible) return;
+    dragging = true;
+    lastPX = e.clientX;
+    lastPY = e.clientY;
+    /* kill residual look lag so drag feels direct-but-heavy */
+    aimX = rotX;
+    aimY = rotY;
+    mount.style.cursor = 'grabbing';
+    root.style.cursor = 'grabbing';
+    try { root.setPointerCapture(e.pointerId); } catch (_) {}
+  }
+  function onUp(e) {
+    if (!dragging) return;
+    dragging = false;
+    mount.style.cursor = 'grab';
+    root.style.cursor = 'grab';
+    /* keep velocity for inertia coast; aim stays at current pose */
+    aimX = rotX;
+    aimY = rotY;
+    if (e && e.pointerId != null) {
+      try { root.releasePointerCapture(e.pointerId); } catch (_) {}
+    }
+  }
+
+  window.addEventListener('pointermove', onWinMove, { passive: true });
+  window.addEventListener('pointerup', onUp, { passive: true });
+  document.addEventListener('mouseleave', onWinLeave);
+  root.addEventListener('pointerdown', onDown);
+  mount.style.cursor = 'grab';
+  root.style.cursor = 'grab';
+
+  const tmp = { x: 0, y: 0, z: 0 };
+
+  function rotatePoint(x, y, z) {
+    const cy_ = Math.cos(rotY), sy = Math.sin(rotY);
+    const cx_ = Math.cos(rotX), sx = Math.sin(rotX);
+    const x1 = x * cy_ + z * sy;
+    const z1 = -x * sy + z * cy_;
+    const y1 = y * cx_ - z1 * sx;
+    const z2 = y * sx + z1 * cx_;
+    return { x: x1, y: y1, z: z2 };
+  }
+
+  function project(x, y, z, i) {
+    const p = rotatePoint(x, y, z);
+    const persp = 2.7 / (2.7 + p.z);
+    const sx = cx + p.x * scale * persp;
+    const sy = cy - p.y * scale * persp;
+    if (i >= 0) {
+      scrX[i] = sx;
+      scrY[i] = sy;
+      scrZ[i] = p.z;
+      /* open field — only cull if clearly outside canvas */
+      alive[i] = (sx > -8 && sx < W + 8 && sy > -8 && sy < H + 8) ? 1 : 0;
+    }
+    return { x: sx, y: sy, z: p.z, persp };
+  }
+
+  const links = new Int16Array(MAX_LINKS * 2);
+  const linkStr = new Float32Array(MAX_LINKS);
+  const linkHeat = new Float32Array(MAX_LINKS);
+  const linkPhase = new Float32Array(MAX_LINKS);
+  let linkN = 0;
+
+  /* horizontal equator only — no vertical meridian */
+  function drawEquator(R, alpha) {
+    ctx.beginPath();
+    let first = true;
+    for (let i = 0; i <= RING_N; i++) {
+      const a = (i / RING_N) * Math.PI * 2;
+      const p = project(Math.cos(a) * R, 0, Math.sin(a) * R, -1);
+      if (first) { ctx.moveTo(p.x, p.y); first = false; }
+      else ctx.lineTo(p.x, p.y);
+    }
+    ctx.strokeStyle = `rgba(255,255,255,${alpha})`;
+    ctx.lineWidth = Math.max(1, dpr * 0.9);
+    ctx.stroke();
+  }
+
+  function frame(now) {
+    if (!visible) { raf = 0; return; }
+    const t = (now - t0) * 0.001;
+    energy += (energyT - energy) * 0.025;
+    hoverS += (hoverT - hoverS) * 0.035;
+    sPtrX += (ptrX - sPtrX) * 0.035;
+    sPtrY += (ptrY - sPtrY) * 0.035;
+
+    /*
+     * Mass model — no spring snap-back:
+     *  drag: velocity from pointer deltas + friction (trails hand)
+     *  free: coast leftover vel + first-order lag toward aim (no overshoot)
+     *  leave: aim frozen at current pose
+     */
+    if (dragging) {
+      rotX += velX;
+      rotY += velY;
+      velX *= DRAG_FRIC;
+      velY *= DRAG_FRIC;
+      rotX = clampPitch(rotX);
+      aimX = rotX;
+      aimY = rotY;
+    } else {
+      rotX += velX;
+      rotY += velY;
+      velX *= FRICTION;
+      velY *= FRICTION;
+      rotX += (aimX - rotX) * LAG;
+      rotY += (aimY - rotY) * LAG;
+      rotX = clampPitch(rotX);
+      if (!reduced && hoverS < 0.08 && Math.abs(velX) + Math.abs(velY) < 0.0004) {
+        rotY += 0.0012;
+        aimY += 0.0012;
+      }
+    }
+
+    const mwx = sPtrX * 0.55;
+    const mwy = sPtrY * 0.55;
+
+    for (let i = 0; i < COUNT; i++) heat[i] *= 0.9;
+
+    /* rare ambient pulse — lights one node, travels one link */
+    if (!reduced) {
+      for (const p of pulses) {
+        p.t += 0.0035;
+        if (p.t > 1.8) {
+          p.t = 0;
+          p.i = (p.i + 13 + ((Math.random() * 19) | 0)) % COUNT;
+        }
+        if (p.t < 0.5) {
+          heat[p.i] = Math.min(1, heat[p.i] + 0.12);
+        }
+      }
+    }
+
+    for (let i = 0; i < COUNT; i++) {
+      const ix = i * 3;
+      const bx = base[ix], by = base[ix + 1], bz = base[ix + 2];
+      const fl = t * speed[i] * 0.18;
+      let x = bx + Math.sin(fl + phase[i]) * 0.02;
+      let y = by + Math.cos(fl * 0.9 + phase[i]) * 0.018;
+      let z = bz + Math.sin(fl * 1.05 + phase[i] * 0.7) * 0.02;
+
+      if (hoverS > 0.02) {
+        const dx = mwx - x, dy = mwy - y, dz = 0.08 - z;
+        const dist = Math.sqrt(dx * dx + dy * dy + dz * dz) + 0.001;
+        if (dist < 0.4) {
+          heat[i] = Math.min(1, heat[i] + (1 - dist / 0.4) * 0.35 * hoverS);
+        }
+        const pull = hoverS * 0.01 * Math.min(1, 0.7 / dist);
+        x += dx * pull;
+        y += dy * pull;
+        z += dz * pull;
+      }
+
+      const len = Math.sqrt(x * x + y * y + z * z) || 1;
+      if (len > RADIUS) {
+        const s = RADIUS / len;
+        x *= s; y *= s; z *= s;
+      }
+      pos[ix] = x; pos[ix + 1] = y; pos[ix + 2] = z;
+      project(x, y, z, i);
+    }
+
+    /* links + gentle heat spread */
+    linkN = 0;
+    const thresh = LINK_DIST * (1 + energy * 0.06);
+    const thresh2 = thresh * thresh;
+    for (let i = 0; i < COUNT && linkN < MAX_LINKS; i++) {
+      const ix = i * 3;
+      for (let j = i + 1; j < COUNT && linkN < MAX_LINKS; j++) {
+        const jx = j * 3;
+        const dx = pos[ix] - pos[jx];
+        const dy = pos[ix + 1] - pos[jx + 1];
+        const dz = pos[ix + 2] - pos[jx + 2];
+        const d2 = dx * dx + dy * dy + dz * dz;
+        if (d2 < thresh2) {
+          const d = Math.sqrt(d2);
+          const str = 1 - d / thresh;
+          const h = Math.max(heat[i], heat[j]);
+          if (h > 0.15) {
+            heat[i] = Math.min(1, heat[i] + h * 0.025);
+            heat[j] = Math.min(1, heat[j] + h * 0.025);
+          }
+          links[linkN * 2] = i;
+          links[linkN * 2 + 1] = j;
+          linkStr[linkN] = str;
+          linkHeat[linkN] = h;
+          linkPhase[linkN] = (i * 0.19 + j * 0.37) % 1;
+          linkN++;
+        }
+      }
+    }
+
+    /* ---- draw ---- */
+    ctx.clearRect(0, 0, W, H);
+    ctx.imageSmoothingEnabled = false;
+
+    /* equator ring only */
+    const ringA = 0.14 + energy * 0.06 + hoverS * 0.05;
+    drawEquator(RADIUS * 1.04, ringA);
+
+    /* links */
+    for (let L = 0; L < linkN; L++) {
+      const i = links[L * 2], j = links[L * 2 + 1];
+      if (!alive[i] || !alive[j]) continue;
+      const x0 = Math.round(scrX[i]), y0 = Math.round(scrY[i]);
+      const x1 = Math.round(scrX[j]), y1 = Math.round(scrY[j]);
+      const str = linkStr[L];
+      const h = linkHeat[L];
+      const baseA = 0.12 + str * 0.18 + energy * 0.05;
+      ctx.strokeStyle = `rgba(255,255,255,${Math.min(0.4, baseA).toFixed(3)})`;
+      ctx.lineWidth = Math.max(1, dpr * 0.75);
+      ctx.beginPath();
+      ctx.moveTo(x0, y0);
+      ctx.lineTo(x1, y1);
+      ctx.stroke();
+
+      /* energy packet ONLY on hot links (touch / rare pulse) — not every edge */
+      if (h > 0.12) {
+        const pulse = (t * 0.28 + linkPhase[L]) % 1;
+        const px = Math.round(x0 + (x1 - x0) * pulse);
+        const py = Math.round(y0 + (y1 - y0) * pulse);
+        const pix = Math.max(2, Math.round(dpr * 1.5));
+        ctx.fillStyle = '#ffffff';
+        ctx.globalAlpha = Math.min(1, 0.45 + h * 0.55);
+        ctx.fillRect(px - (pix >> 1), py - (pix >> 1), pix, pix);
+        ctx.globalAlpha = 1;
+      }
+    }
+
+    /* nodes — hard white squares at integer device pixels */
+    const PIX = nodePix();
+    const half = PIX >> 1;
+    for (let i = 0; i < COUNT; i++) {
+      if (!alive[i]) continue;
+      const x = Math.round(scrX[i]) - half;
+      const y = Math.round(scrY[i]) - half;
+      const h = heat[i];
+      const g = Math.round(210 + h * 45);
+      ctx.fillStyle = `rgb(${g},${g},${g})`;
+      ctx.globalAlpha = 1;
+      ctx.fillRect(x, y, PIX, PIX);
+      if (h > 0.5) {
+        ctx.fillStyle = '#ffffff';
+        const e = Math.max(1, Math.round(dpr));
+        ctx.fillRect(x - e, y, e, PIX);
+        ctx.fillRect(x + PIX, y, e, PIX);
+        ctx.fillRect(x, y - e, PIX, e);
+        ctx.fillRect(x, y + PIX, PIX, e);
+      }
+    }
+
+    if (!reduced) raf = requestAnimationFrame(frame);
+  }
+
+  function paintStatic() {
+    for (let i = 0; i < COUNT; i++) {
+      pos[i * 3] = base[i * 3];
+      pos[i * 3 + 1] = base[i * 3 + 1];
+      pos[i * 3 + 2] = base[i * 3 + 2];
+      project(pos[i * 3], pos[i * 3 + 1], pos[i * 3 + 2], i);
+    }
+    ctx.clearRect(0, 0, W, H);
+    drawEquator(RADIUS * 1.04, 0.16);
+    const PIX = nodePix();
+    const half = PIX >> 1;
+    for (let i = 0; i < COUNT; i++) {
+      if (!alive[i]) continue;
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(Math.round(scrX[i]) - half, Math.round(scrY[i]) - half, PIX, PIX);
+    }
+  }
+
+  function go() {
+    if (raf) return;
+    visible = true;
+    t0 = performance.now();
+    if (reduced) { paintStatic(); return; }
+    raf = requestAnimationFrame(frame);
+  }
+  function stop() {
+    visible = false;
+    if (raf) cancelAnimationFrame(raf);
+    raf = 0;
+    stopSeq();
+    hoverT = 0;
+  }
+
+  new IntersectionObserver(es => {
+    if (es[0].isIntersecting) { go(); startSeq(); }
+    else stop();
+  }, { threshold: 0.15 }).observe(section);
+}
+</script>
+</body>
+</html>
